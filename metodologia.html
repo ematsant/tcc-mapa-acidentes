@@ -75,7 +75,7 @@
             <div class="kpi-card fator">
                 <div class="kpi-icon"><i class="fas fa-bolt"></i></div>
                 <div class="kpi-valor">60,96x</div>
-                <div class="kpi-rotulo">Razão de Área vs. K-Means</div>
+                <div class="kpi-rotulo">Comparação com K-Means</div>
                 <div class="kpi-desc">
                     Para cobrir os mesmos acidentes, o modelo K-Means delimitou 59,68 km² (9,86% do município), uma área 61 vezes maior que a do DBSCAN.
                 </div>
@@ -84,7 +84,7 @@
             <div class="kpi-card datum">
                 <div class="kpi-icon"><i class="fas fa-globe-americas"></i></div>
                 <div class="kpi-valor">SIRGAS 2000</div>
-                <div class="kpi-rotulo">Projeção Cartográfica Oficial</div>
+                <div class="kpi-rotulo">Sistema Geodésico Oficial</div>
                 <div class="kpi-desc">
                     Uso da projeção oficial SIRGAS 2000 / UTM 23S (EPSG:31983), permitindo calcular distâncias e áreas diretamente em metros.
                 </div>
@@ -214,18 +214,18 @@
                         RELATÓRIO DE AVALIAÇÃO ESPACIAL E RESULTADOS (TCC)<br>
                         Município: Franca - SP | Projeção: SIRGAS 2000 / UTM 23S (EPSG:31983)<br>
                         ======================================================================<br><br>
-                        1. MÉTODO PROPOSTO (DBSCAN - Agrupamento por Densidade):<br>
-                        &nbsp;&nbsp;• Cobertura de Acidentes Graves: 35.04% (com vítimas e óbitos)<br>
-                        &nbsp;&nbsp;• Área Total das Zonas de Risco: 0.98 km²<br>
-                        &nbsp;&nbsp;• Ocupação do Município: 0.16% de Franca (total de 605.6 km²)<br><br>
-                        2. MÉTODO DE CONTROLE (K-MEANS):<br>
+                        1. MODELO DBSCAN (Agrupamento por Densidade):<br>
+                        &nbsp;&nbsp;• Acidentes com Vítimas e Óbitos: 35.04%<br>
+                        &nbsp;&nbsp;• Área Total Delimitada: 0.98 km²<br>
+                        &nbsp;&nbsp;• Ocupação Territorial: 0.16% de Franca (total de 605.6 km²)<br><br>
+                        2. MODELO K-MEANS (Controle Particional):<br>
                         &nbsp;&nbsp;• Quantidade de Grupos Pareada: 111<br>
-                        &nbsp;&nbsp;• Área Ocupada: 59.68 km²<br>
-                        &nbsp;&nbsp;• Ocupação do Município: 9.86% de Franca<br><br>
+                        &nbsp;&nbsp;• Área Total Delimitada: 59.68 km²<br>
+                        &nbsp;&nbsp;• Ocupação Territorial: 9.86% de Franca<br><br>
                         3. COMPARAÇÃO DOS RESULTADOS:<br>
-                        &nbsp;&nbsp;• Razão de Área: A área delimitada pelo K-Means é 60.96 vezes maior que a do DBSCAN.<br>
-                        &nbsp;&nbsp;• Síntese: As 111 áreas de risco identificadas concentram 35.04% dos acidentes com vítimas e óbitos<br>
-                        &nbsp;&nbsp;&nbsp;&nbsp;em 0.16% do território do município de Franca (0.98 km² de 605.6 km²).<br>
+                        &nbsp;&nbsp;• Razão de Área: O K-Means ocupou uma área 60.96 vezes maior que o DBSCAN.<br>
+                        &nbsp;&nbsp;• Síntese: As 111 áreas de risco concentram 35.04% dos acidentes com vítimas e óbitos<br>
+                        &nbsp;&nbsp;&nbsp;&nbsp;em 0.16% do território de Franca (0.98 km² de 605.6 km²).<br>
                         ======================================================================
                     </div>
                 </div>

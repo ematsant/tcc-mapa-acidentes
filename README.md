@@ -69,20 +69,20 @@ RELATÓRIO DE AVALIAÇÃO ESPACIAL E RESULTADOS (TCC)
 Município: Franca - SP | Projeção: SIRGAS 2000 / UTM 23S (EPSG:31983)
 ======================================================================
 
-1. MÉTODO PROPOSTO (DBSCAN - Agrupamento por Densidade):
-   • Cobertura de Acidentes Graves: 35.04% (com vítimas e óbitos)
-   • Área Total das Zonas de Risco: 0.98 km²
-   • Ocupação do Município: 0.16% de Franca (total de 605.6 km²)
+1. MODELO DBSCAN (Agrupamento por Densidade):
+   • Acidentes com Vítimas e Óbitos: 35.04%
+   • Área Total Delimitada: 0.98 km²
+   • Ocupação Territorial: 0.16% de Franca (total de 605.6 km²)
 
-2. MÉTODO DE CONTROLE (K-MEANS):
+2. MODELO K-MEANS (Controle Particional):
    • Quantidade de Grupos Pareada: 111
-   • Área Ocupada: 59.68 km²
-   • Ocupação do Município: 9.86% de Franca
+   • Área Total Delimitada: 59.68 km²
+   • Ocupação Territorial: 9.86% de Franca
 
 3. COMPARAÇÃO DOS RESULTADOS:
-   • Razão de Área: A área delimitada pelo K-Means é 60.96 vezes maior que a do DBSCAN.
+   • Razão de Área: O K-Means ocupou uma área 60.96 vezes maior que o DBSCAN.
    • Síntese: As 111 áreas de risco concentram 35.04% dos acidentes com vítimas e óbitos
-     em 0.16% do território do município de Franca (0.98 km² de 605.6 km²).
+     em 0.16% do território de Franca (0.98 km² de 605.6 km²).
 ======================================================================
 ```
 
