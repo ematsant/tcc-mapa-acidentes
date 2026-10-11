@@ -1,0 +1,156 @@
+<!DOCTYPE html>
+<html lang="pt-BR" data-theme="light">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="Plataforma interativa de visualização e análise de acidentes de trânsito em Franca, SP (2022–2026).">
+    <title>Mapa de Acidentes de Trânsito – Franca, SP</title>
+
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
+
+    <!-- Leaflet -->
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+    <link rel="stylesheet" href="https://unpkg.com/leaflet.markercluster@1.5.3/dist/MarkerCluster.css" />
+    <link rel="stylesheet" href="https://unpkg.com/leaflet.markercluster@1.5.3/dist/MarkerCluster.Default.css" />
+
+    <!-- App styles -->
+    <link rel="stylesheet" href="style.css">
+
+    <!-- Chart.js -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+
+    <!-- FontAwesome Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+</head>
+<body>
+
+    <main class="container">
+        <!-- Painel lateral de filtros -->
+        <aside class="painel-filtros">
+            <div class="painel-header">
+                <h1 class="painel-titulo"><i class="fas fa-traffic-light"></i> Acidentes em Franca</h1>
+                <button id="theme-toggle" aria-label="Alternar tema claro/escuro" title="Alternar tema"><i class="fas fa-moon" id="theme-icon"></i></button>
+            </div>
+
+            <div class="header-actions">
+                <a href="metodologia.html" class="btn-metodologia" aria-label="Metodologia e Resultados da Pesquisa">
+                    <i class="fas fa-book-open"></i> Metodologia & Resultados
+                </a>
+            </div>
+
+            <h2>Filtros</h2>
+
+            <div class="grupo-filtro-row" style="display: flex; gap: 10px;">
+                <div class="grupo-filtro" style="flex: 1;">
+                    <label for="ano-inicial">Ano Inicial:</label>
+                    <select id="ano-inicial"></select>
+                </div>
+                <div class="grupo-filtro" style="flex: 1;">
+                    <label for="ano-final">Ano Final:</label>
+                    <select id="ano-final"></select>
+                </div>
+            </div>
+
+            <div class="grupo-filtro">
+                <label for="gravidade-filtro">Gravidade:</label>
+                <select id="gravidade-filtro">
+                    <option value="todos">Todas</option>
+                    <option value="fatal">Fatal</option>
+                    <option value="com_vitima">Com Vítima</option>
+                    <option value="sem_vitima">Sem Vítima</option>
+                </select>
+            </div>
+
+            <div class="grupo-filtro">
+                <label for="turno-filtro">Turno:</label>
+                <select id="turno-filtro"><option value="todos">Todos</option></select>
+            </div>
+
+            <div class="grupo-filtro">
+                <label for="dia-semana-filtro">Dia da Semana:</label>
+                <select id="dia-semana-filtro"><option value="todos">Todos</option></select>
+            </div>
+
+            <div class="grupo-filtro">
+                <label for="tipo-sinistro-filtro">
+                    Tipo de Sinistro:
+                    <div class="tooltip-container">
+                        <i class="fas fa-question-circle" style="color:var(--primary); cursor:help; margin-left:4px;"></i>
+                        <span class="tooltip-text"><b>Colisão:</b> Veículos em movimento.<br><b>Choque:</b> Veículo contra objeto fixo ou parado.</span>
+                    </div>
+                </label>
+                <select id="tipo-sinistro-filtro"><option value="todos">Todos</option></select>
+            </div>
+
+            <div class="grupo-filtro">
+                <label for="tipo-veiculo-filtro">Veículo Envolvido:</label>
+                <select id="tipo-veiculo-filtro"><option value="todos">Todos</option></select>
+            </div>
+
+            <div class="grupo-filtro">
+                <label class="label-checkbox">
+                    <input type="checkbox" id="toggle-marcadores" checked> Mostrar Marcadores no Mapa
+                </label>
+            </div>
+
+            <div class="grupo-filtro" style="margin-top: -10px;">
+                <label class="label-checkbox">
+                    <input type="checkbox" id="toggle-heatmap"> Ativar Mapa de Calor
+                </label>
+            </div>
+            
+            <div class="grupo-filtro" style="margin-top: -10px;">
+                <label class="label-checkbox" title="Áreas calculadas via DBSCAN">
+                    <input type="checkbox" id="toggle-hotspots"> Zonas de Risco Crítico <span id="hotspots-count" style="font-size:0.75rem; color:var(--primary); font-weight:700;"></span>
+                </label>
+            </div>
+
+            <div class="acoes-filtros">
+                <button id="btn-aplicar-filtros"><i class="fas fa-filter"></i> Aplicar</button>
+                <button id="btn-limpar-filtros" class="btn-secundario"><i class="fas fa-eraser"></i> Limpar</button>
+            </div>
+
+            <button id="btn-exportar-csv" class="btn-secundario btn-exportar"><i class="fas fa-download"></i> Exportar Dados (CSV)</button>
+
+            <!-- Contador de registros exibidos -->
+            <div id="contador" class="contador">Carregando dados...</div>
+
+            <!-- Dashboard de Custo Social -->
+            <div class="custo-social-card" style="background-color: var(--surface-variant); padding: 12px; border-radius: 8px; margin-bottom: 20px; border: 1px solid var(--border-color);">
+                <div style="font-size: 0.85rem; color: var(--text-secondary); margin-bottom: 4px;">Custo Social Estimado (IPEA)</div>
+                <div id="custo-social-total" style="font-size: 1.25rem; font-weight: 700; color: var(--danger-color);">R$ 0,00</div>
+            </div>
+
+            <!-- Gráfico de estatísticas -->
+            <div id="chart-container">
+                <canvas id="statsChart" aria-label="Gráfico de acidentes por gravidade"></canvas>
+            </div>
+            
+            <div class="spacer"></div>
+
+            <!-- Métricas empíricas para o TCC -->
+            <div id="metricas-frontend" class="metricas-discretas">
+                Tempo de renderização: -- ms
+            </div>
+        </aside>
+
+        <!-- Botão Hamburguer para Painel -->
+        <button id="btn-toggle-sidebar" class="btn-hamburger" aria-label="Menu"><i class="fas fa-bars"></i></button>
+
+        <!-- Mapa interativo -->
+        <section id="mapa" aria-label="Mapa interativo de acidentes de trânsito em Franca"></section>
+
+    </main>
+
+    <!-- Leaflet -->
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+    <script src="https://unpkg.com/leaflet.markercluster@1.5.3/dist/leaflet.markercluster.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet.heat/0.2.0/leaflet-heat.js"></script>
+
+    <!-- App -->
+    <script src="script.js"></script>
+</body>
+</html>

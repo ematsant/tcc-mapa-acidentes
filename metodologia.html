@@ -1,0 +1,279 @@
+<!DOCTYPE html>
+<html lang="pt-BR" data-theme="light">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="Metodologia Científica e Resultados da Plataforma de Mapeamento de Acidentes de Trânsito em Franca, SP.">
+    <title>Metodologia & Resultados – Mapa de Acidentes de Franca</title>
+
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
+
+    <!-- FontAwesome Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+
+    <!-- App styles -->
+    <link rel="stylesheet" href="style.css">
+</head>
+<body class="page-metodologia">
+
+    <!-- Navegação Superior -->
+    <header class="metodologia-nav">
+        <a href="index.html" class="nav-brand">
+            <i class="fas fa-traffic-light"></i>
+            <span>Acidentes Franca</span>
+        </a>
+
+        <div class="nav-actions">
+            <a href="index.html" class="btn-nav-voltar">
+                <i class="fas fa-arrow-left"></i> Voltar ao Mapa Interativo
+            </a>
+            <button id="theme-toggle" aria-label="Alternar tema claro/escuro" title="Alternar tema">
+                <i class="fas fa-moon" id="theme-icon"></i>
+            </button>
+        </div>
+    </header>
+
+    <!-- Conteúdo Principal -->
+    <main class="metodologia-container">
+
+        <!-- Hero -->
+        <section class="metodologia-hero">
+            <div class="badge">
+                <i class="fas fa-microscope"></i> Metodologia & Resultados Científicos
+            </div>
+            <h1>Como os Dados Foram Analisados e Validados</h1>
+            <p>
+                Este projeto investiga os acidentes de trânsito em Franca (SP) entre 2022 e 2026. 
+                Em vez de apenas somar números por bairros inteiros, utilizamos análise espacial inteligente (DBSCAN) 
+                para apontar os cruzamentos e trechos onde o risco real se concentra.
+            </p>
+        </section>
+
+        <!-- Indicadores Chave (KPI Cards) -->
+        <section class="kpi-grid">
+            <div class="kpi-card cobertura">
+                <div class="kpi-icon"><i class="fas fa-crosshairs"></i></div>
+                <div class="kpi-valor">35,04%</div>
+                <div class="kpi-rotulo">Acidentes Graves Abrangidos</div>
+                <div class="kpi-desc">
+                    Mais de 35% de todos os acidentes com feridos ou mortes na cidade ocorreram dentro dessas áreas críticas identificadas.
+                </div>
+            </div>
+
+            <div class="kpi-card area">
+                <div class="kpi-icon"><i class="fas fa-compress-arrows-alt"></i></div>
+                <div class="kpi-valor">0,16%</div>
+                <div class="kpi-rotulo">Área do Município Ocupada</div>
+                <div class="kpi-desc">
+                    As 111 áreas de risco identificadas somam apenas <strong>0,98 km²</strong> de todo o território de Franca (605,60 km² - IBGE).
+                </div>
+            </div>
+
+            <div class="kpi-card fator">
+                <div class="kpi-icon"><i class="fas fa-bolt"></i></div>
+                <div class="kpi-valor">61x mais preciso</div>
+                <div class="kpi-rotulo">Comparação com o K-Means</div>
+                <div class="kpi-desc">
+                    Para englobar os mesmos acidentes, o método tradicional K-Means precisou de <strong>59,68 km²</strong> — uma área 61 vezes maior e cheia de vazios.
+                </div>
+            </div>
+
+            <div class="kpi-card datum">
+                <div class="kpi-icon"><i class="fas fa-globe-americas"></i></div>
+                <div class="kpi-valor">SIRGAS 2000</div>
+                <div class="kpi-rotulo">Medição em Metros Reais</div>
+                <div class="kpi-desc">
+                    Uso da projeção oficial brasileira (UTM 23S), que calcula áreas em metros quadrados reais e elimina distorções do GPS comum.
+                </div>
+            </div>
+        </section>
+
+        <!-- Tabela Comparativa de Abordagens -->
+        <section class="secao-conteudo">
+            <h2><i class="fas fa-balance-scale"></i> Por que o Método Utilizado é Mais Eficiente?</h2>
+            <p>
+                Quando a prefeitura ou a imprensa junta os dados por bairros, a informação fica diluída: um bairro inteiro parece perigoso, 
+                mas muitas vezes o problema está em apenas uma avenida. A tabela abaixo compara a abordagem tradicional por bairros, 
+                um algoritmo geométrico comum (K-Means) e a solução desenvolvida neste trabalho (DBSCAN):
+            </p>
+
+            <div class="tabela-wrapper">
+                <table class="tabela-cientifica">
+                    <thead>
+                        <tr>
+                            <th>Critério</th>
+                            <th>Divisão por Bairros (Tradicional)</th>
+                            <th>Modelo de Controle (K-Means)</th>
+                            <th>Modelo Deste Projeto (DBSCAN)</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td><strong>Como agrupa</strong></td>
+                            <td>Limites administrativos de bairros</td>
+                            <td>Círculos geométricos rígidos</td>
+                            <td><span class="tag-destaque dbscan">Segue o formato real das ruas e avenidas</span></td>
+                        </tr>
+                        <tr>
+                            <td><strong>Área necessária</strong></td>
+                            <td>Muito ampla (40% a 50% da mancha urbana)</td>
+                            <td>59,68 km² (quase 10% de Franca)</td>
+                            <td><span class="tag-destaque dbscan">0,98 km² (apenas 0,16% de Franca)</span></td>
+                        </tr>
+                        <tr>
+                            <td><strong>Acidentes isolados</strong></td>
+                            <td><span class="tag-destaque bairros">Mascara</span> (soma acidentes raros junto com os graves)</td>
+                            <td><span class="tag-destaque kmeans">Força</span> (obriga todo acidente a entrar num grupo)</td>
+                            <td><span class="tag-destaque dbscan">Descarta ruídos</span> (isola acidentes ocasionais)</td>
+                        </tr>
+                        <tr>
+                            <td><strong>Formato no mapa</strong></td>
+                            <td>Polígonos fixos do mapa da cidade</td>
+                            <td>Polígonos inflados (engloba quarteirões vazios)</td>
+                            <td><span class="tag-destaque dbscan">Polígonos ajustados ao eixo das vias</span></td>
+                        </tr>
+                        <tr>
+                            <td><strong>Ação prática no trânsito</strong></td>
+                            <td>Genérica (ex: "intensificar blitz no bairro X")</td>
+                            <td>Imprecisa</td>
+                            <td><span class="tag-destaque dbscan">Cirúrgica (ex: "instalar semáforo no cruzamento Y")</span></td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </section>
+
+        <!-- Detalhamento das Etapas Metodológicas -->
+        <section class="secao-conteudo">
+            <h2><i class="fas fa-cogs"></i> Como os Dados Foram Tratados e Processados</h2>
+
+            <h3>1. Coleta e Limpeza dos Dados (Infosiga SP)</h3>
+            <p>
+                Os registros foram obtidos da base oficial do <strong>Infosiga SP</strong> (Sistema de Informações Gerenciais de Acidentes de Trânsito do Estado de São Paulo), 
+                abrangendo o período de <strong>2022 a 2026</strong>:
+            </p>
+            <ul>
+                <li><strong>Filtro Municipal:</strong> Foram selecionados apenas os registros ocorridos no município de Franca.</li>
+                <li><strong>Remoção de Inconsistências:</strong> Registros sem latitude e longitude válidas ou com erros de preenchimento foram tratados e descartados.</li>
+                <li><strong>Cruzamento de Tabelas:</strong> As informações do sinistro, dos veículos e das vítimas foram unificadas em uma visão única.</li>
+            </ul>
+
+            <h3>2. Classificação de Gravidade e Custo Social (IPEA)</h3>
+            <p>
+                Para refletir o impacto real no trânsito, cada ocorrência recebeu um peso de acordo com sua severidade, 
+                utilizando os valores de referência do <strong>IPEA (Instituto de Pesquisa Econômica Aplicada, 2020)</strong>:
+            </p>
+            <ul>
+                <li><strong>Acidente Fatal (Óbito):</strong> Peso <strong>5</strong> | Custo social estimado: <strong>R$ 664.821,00</strong>.</li>
+                <li><strong>Com Vítima (Feridos leves ou graves):</strong> Peso <strong>2</strong> | Custo social estimado: <strong>R$ 261.689,00</strong>.</li>
+                <li><strong>Sem Vítima (Apenas danos materiais):</strong> Peso <strong>1</strong> | Custo social estimado: <strong>R$ 25.000,00</strong>.</li>
+            </ul>
+
+            <h3>3. Como o Algoritmo DBSCAN Localiza as Zonas de Risco</h3>
+            <p>
+                O <strong>DBSCAN</strong> agrupa pontos com base na proximidade física entre eles, adaptando-se às ruas da cidade:
+            </p>
+            <ul>
+                <li><strong>Raio de Proximidade (50 metros):</strong> Distância adequada para abranger cruzamentos e pequenos trechos de quarteirões.</li>
+                <li><strong>Mínimo de 20 ocorrências ponderadas em 5 anos:</strong> Segue recomendações técnicas do <em>Highway Safety Manual (HSM)</em> para evitar que acidentes esporádicos criem falsos pontos críticos.</li>
+                <li><strong>Delimitação das Áreas:</strong> O sistema gera polígonos contornando os pontos agrupados, desenhando as 111 áreas visíveis no mapa.</li>
+            </ul>
+
+            <h3>4. Medição Precisa em Metros (SIRGAS 2000)</h3>
+            <p>
+                Para que o cálculo de área fosse rigoroso e confiável, as coordenadas foram convertidas para o sistema cartográfico 
+                oficial do Brasil para a nossa região: <strong>SIRGAS 2000 / UTM zone 23S (EPSG:31983)</strong>. 
+                Isso assegura que as medidas de área sejam calculadas em metros quadrados exatos, sem distorções.
+            </p>
+        </section>
+
+        <!-- Reprodutibilidade Científica e Terminal -->
+        <section class="secao-conteudo">
+            <h2><i class="fas fa-terminal"></i> Verificação Independente dos Resultados</h2>
+            <p>
+                Qualquer avaliador da banca ou pesquisador pode confirmar esses cálculos executando o script de teste no próprio terminal. 
+                O script lê a base de acidentes e as áreas geradas, refazendo os cálculos matemáticos em tempo real:
+            </p>
+
+            <div class="terminal-card">
+                <div class="terminal-header">
+                    <div class="terminal-dots">
+                        <span class="dot-red"></span>
+                        <span class="dot-yellow"></span>
+                        <span class="dot-green"></span>
+                    </div>
+                    <div class="terminal-title">terminal — calcula_metricas_area.py</div>
+                    <button class="btn-copiar-terminal" onclick="copiarComando()">
+                        <i class="fas fa-copy"></i> Copiar Comando
+                    </button>
+                </div>
+                <div class="terminal-body">
+                    <span class="comment"># Comando para executar no terminal do projeto:</span><br>
+                    <span>$ python calcula_metricas_area.py</span><br><br>
+                    <span class="comment"># --- Resultado gerado na tela ---</span><br>
+                    <div class="output">
+                        Processando dados espaciais de Franca - SP...<br>
+                        ======================================================================<br>
+                        RELATÓRIO DE AVALIAÇÃO ESPACIAL E RESULTADOS (TCC)<br>
+                        Município: Franca - SP | Projeção: SIRGAS 2000 / UTM 23S (EPSG:31983)<br>
+                        ======================================================================<br><br>
+                        1. MÉTODO PROPOSTO (DBSCAN - Agrupamento por Densidade):<br>
+                        &nbsp;&nbsp;• Cobertura de Acidentes Graves: 35.04% (com vítimas e óbitos)<br>
+                        &nbsp;&nbsp;• Área Total das Zonas de Risco: 0.98 km²<br>
+                        &nbsp;&nbsp;• Ocupação do Município: 0.16% de Franca (total de 605.6 km²)<br><br>
+                        2. MÉTODO DE CONTROLE (K-MEANS):<br>
+                        &nbsp;&nbsp;• Quantidade de Grupos Pareada: 111<br>
+                        &nbsp;&nbsp;• Área Ocupada: 59.68 km²<br>
+                        &nbsp;&nbsp;• Ocupação do Município: 9.86% de Franca<br><br>
+                        3. COMPARAÇÃO DOS RESULTADOS:<br>
+                        &nbsp;&nbsp;• O K-Means precisou de uma área 61x maior para cobrir os mesmos acidentes.<br>
+                        &nbsp;&nbsp;• Conclusão: As 111 áreas identificadas concentram 35% dos acidentes graves<br>
+                        &nbsp;&nbsp;&nbsp;&nbsp;em apenas 0,16% do território de Franca.<br>
+                        ======================================================================
+                    </div>
+                </div>
+            </div>
+        </section>
+
+    </main>
+
+    <script>
+        // Sincronização e alternância de Tema (Claro / Escuro)
+        const html = document.documentElement;
+        const btnTema = document.getElementById('theme-toggle');
+        const themeIcon = document.getElementById('theme-icon');
+
+        const aplicarTema = (tema) => {
+            html.setAttribute('data-theme', tema);
+            if (themeIcon) {
+                themeIcon.className = (tema === 'dark') ? 'fas fa-sun' : 'fas fa-moon';
+            }
+        };
+
+        const temaSalvo = localStorage.getItem('theme') || 'light';
+        aplicarTema(temaSalvo);
+
+        btnTema.addEventListener('click', () => {
+            const estavaDark = html.getAttribute('data-theme') === 'dark';
+            const novoTema = estavaDark ? 'light' : 'dark';
+            localStorage.setItem('theme', novoTema);
+            aplicarTema(novoTema);
+        });
+
+        // Copiar comando do terminal
+        function copiarComando() {
+            const comando = 'python calcula_metricas_area.py';
+            navigator.clipboard.writeText(comando).then(() => {
+                const btn = document.querySelector('.btn-copiar-terminal');
+                btn.innerHTML = '<i class="fas fa-check"></i> Copiado!';
+                setTimeout(() => {
+                    btn.innerHTML = '<i class="fas fa-copy"></i> Copiar Comando';
+                }, 2000);
+            });
+        }
+    </script>
+</body>
+</html>

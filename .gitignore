@@ -1,0 +1,28 @@
+# Ambientes virtuais Python
+venv/
+venv_tcc/
+.env/
+env/
+ENV/
+
+# Cache e arquivos compilados Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.pytest_cache/
+
+# Dados brutos volumosos (>100MB)
+data/
+*.csv
+
+# Logs e arquivos de sistema
+*.log
+.DS_Store
+Thumbs.db
+
+# IDEs e editores de código
+.vscode/
+.idea/
+*.swp
+*.swo

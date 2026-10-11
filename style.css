@@ -1,0 +1,807 @@
+/* =========================================================
+   Mapa de Acidentes – Franca, SP | TCC
+   Design: Glassmorphism + Tema Claro/Escuro + Responsivo
+   ========================================================= */
+
+/* ------- Google Font Import ------- */
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap');
+
+/* ------- Reset ------- */
+*, *::before, *::after {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+/* ------- Design Tokens (Tema Claro) ------- */
+:root {
+    --bg:          #edf0f5;
+    --panel-bg:    rgba(255, 255, 255, 0.80);
+    --panel-blur:  16px;
+    --text:        #1a1a2e;
+    --text-muted:  #5a6070;
+    --primary:     #3498db;
+    --primary-dk:  #2176ae;
+    --fatal:       #e74c3c;
+    --vitima:      #f39c12;
+    --sem:         #2ecc71;
+    --border:      rgba(0, 0, 0, 0.08);
+    --shadow:      0 8px 32px rgba(31, 38, 135, 0.12);
+    --radius:      14px;
+    --transition:  0.3s ease;
+}
+
+/* ------- Tema Escuro ------- */
+[data-theme="dark"] {
+    --bg:         #0f1117;
+    --panel-bg:   rgba(22, 24, 35, 0.85);
+    --text:       #e8eaf6;
+    --text-muted: #9ea3b0;
+    --primary:    #4fa3e0;
+    --primary-dk: #3498db;
+    --border:     rgba(255, 255, 255, 0.08);
+    --shadow:     0 8px 32px rgba(0, 0, 0, 0.5);
+}
+
+/* ------- Body ------- */
+body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: 'Inter', Arial, sans-serif;
+    transition: background var(--transition), color var(--transition);
+    height: 100dvh;
+    overflow: hidden;
+}
+
+/* ------- Layout Principal ------- */
+.container {
+    display: flex;
+    height: 100dvh;
+    width: 100vw;
+    overflow: hidden;
+}
+
+/* =========================================================
+   PAINEL LATERAL (Glassmorphism)
+   ========================================================= */
+.painel-filtros {
+    width: 300px;
+    min-width: 300px;
+    background: var(--panel-bg);
+    backdrop-filter: blur(var(--panel-blur));
+    -webkit-backdrop-filter: blur(var(--panel-blur));
+    border-right: 1px solid var(--border);
+    box-shadow: var(--shadow);
+    padding: 20px 16px;
+    display: flex;
+    flex-direction: column;
+    gap: 14px;
+    overflow-y: auto;
+    z-index: 1000;
+    transition: all var(--transition);
+}
+
+.painel-filtros.collapsed {
+    margin-left: -300px;
+    visibility: hidden;
+}
+
+/* Botão Hamburguer flutuante */
+.btn-hamburger {
+    position: absolute;
+    top: 15px;
+    left: 315px;
+    z-index: 1001;
+    background: var(--primary);
+    color: #ffffff;
+    border: none;
+    border-radius: 50%;
+    width: 48px;
+    height: 48px;
+    font-size: 1.25rem;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    box-shadow: 0 4px 12px rgba(52, 152, 219, 0.4);
+    transition: all var(--transition);
+}
+
+.btn-hamburger:hover {
+    background: var(--primary-dk);
+    color: #ffffff;
+    transform: scale(1.1);
+}
+
+.painel-filtros.collapsed + .btn-hamburger {
+    left: 15px;
+}
+
+/* Scrollbar fina no painel */
+.painel-filtros::-webkit-scrollbar { width: 4px; }
+.painel-filtros::-webkit-scrollbar-track { background: transparent; }
+.painel-filtros::-webkit-scrollbar-thumb { background: var(--primary); border-radius: 2px; }
+
+/* ------- Cabeçalho do painel ------- */
+.painel-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 4px;
+}
+
+.painel-titulo {
+    font-size: 1rem;
+    font-weight: 700;
+    color: var(--text);
+    line-height: 1.3;
+}
+
+#theme-toggle {
+    background: var(--panel-bg);
+    color: var(--text);
+    border: 1px solid var(--border);
+    border-radius: 50%;
+    width: 36px;
+    height: 36px;
+    font-size: 1.1rem;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: background var(--transition), color var(--transition), transform 0.2s;
+    flex-shrink: 0;
+}
+#theme-toggle:hover { transform: scale(1.12); }
+
+/* ------- Título de seção ------- */
+.painel-filtros h2 {
+    font-size: 0.75rem;
+    font-weight: 700;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: var(--primary);
+    border-bottom: 2px solid var(--primary);
+    padding-bottom: 6px;
+}
+
+/* ------- Grupos de filtro ------- */
+.grupo-filtro {
+    display: flex;
+    flex-direction: column;
+    gap: 5px;
+}
+
+.grupo-filtro label {
+    font-weight: 600;
+    font-size: 0.875rem; /* Aumentado para melhor legibilidade */
+    color: var(--text-muted);
+}
+
+.grupo-filtro select {
+    padding: 8px 10px;
+    border: 1.5px solid var(--border);
+    border-radius: 8px;
+    font-size: 0.9rem;
+    background: var(--panel-bg);
+    color: var(--text);
+    appearance: none;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 12 12'%3E%3Cpath fill='%233498db' d='M6 8L1 3h10z'/%3E%3C/svg%3E");
+    background-repeat: no-repeat;
+    background-position: right 10px center;
+    padding-right: 28px;
+    cursor: pointer;
+    transition: border-color var(--transition), box-shadow var(--transition);
+}
+.grupo-filtro select:focus {
+    outline: none;
+    border-color: var(--primary);
+    box-shadow: 0 0 0 3px rgba(52, 152, 219, 0.2);
+}
+
+/* Label com checkbox */
+.label-checkbox {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-weight: 600;
+    font-size: 0.85rem;
+    color: var(--text-muted);
+    cursor: pointer;
+}
+.label-checkbox input[type="checkbox"] {
+    width: 16px;
+    height: 16px;
+    accent-color: var(--primary);
+    cursor: pointer;
+}
+
+/* ------- Botões de Ação ------- */
+.acoes-filtros {
+    display: flex;
+    gap: 8px;
+    margin-top: 4px;
+}
+
+#btn-aplicar-filtros {
+    flex: 2;
+    background: linear-gradient(135deg, var(--primary), var(--primary-dk));
+    color: #fff;
+    border: none;
+    padding: 11px;
+    font-size: 0.9rem;
+    font-weight: 700;
+    border-radius: 8px;
+    cursor: pointer;
+    letter-spacing: 0.03em;
+    box-shadow: 0 4px 12px rgba(52, 152, 219, 0.35);
+    transition: opacity var(--transition), transform 0.15s;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 6px;
+}
+#btn-aplicar-filtros:hover  { opacity: 0.92; }
+#btn-aplicar-filtros:active { transform: scale(0.97); }
+
+.btn-secundario {
+    flex: 1;
+    background: transparent;
+    color: var(--text);
+    border: 1.5px solid var(--border);
+    padding: 11px;
+    font-size: 0.85rem;
+    font-weight: 600;
+    border-radius: 8px;
+    cursor: pointer;
+    transition: all var(--transition);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 6px;
+}
+.btn-secundario:hover {
+    background: var(--border);
+}
+.btn-secundario:active { transform: scale(0.97); }
+
+.btn-exportar {
+    width: 100%;
+    margin-top: -5px;
+    font-size: 0.85rem;
+}
+
+/* ------- Botão Texto (Header) ------- */
+.header-actions {
+    display: flex;
+    justify-content: flex-start;
+    margin-top: -5px;
+    margin-bottom: 5px;
+}
+
+.btn-metodologia {
+    background: rgba(52, 152, 219, 0.12);
+    color: var(--primary);
+    border: 1px solid rgba(52, 152, 219, 0.3);
+    border-radius: 8px;
+    font-size: 0.8rem;
+    font-weight: 600;
+    text-decoration: none;
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 6px 12px;
+    transition: all var(--transition);
+}
+.btn-metodologia:hover {
+    background: var(--primary);
+    color: #ffffff;
+    transform: translateY(-1px);
+    box-shadow: 0 4px 12px rgba(52, 152, 219, 0.3);
+}
+
+/* ------- Contador e Métricas ------- */
+.contador {
+    text-align: center;
+    font-size: 0.8rem;
+    color: var(--text-muted);
+    background: var(--border);
+    border-radius: 6px;
+    padding: 6px;
+}
+
+.spacer {
+    flex-grow: 1;
+}
+
+.metricas-discretas {
+    font-size: 0.7rem;
+    text-align: center;
+    opacity: 0.4;
+    font-weight: 400;
+    margin-top: 10px;
+    padding-top: 10px;
+    border-top: 1px dashed var(--border);
+    color: var(--text-muted);
+}
+
+/* ------- Gráfico ------- */
+#chart-container {
+    width: 100%;
+    padding: 6px 0 0;
+    flex-shrink: 0;
+}
+
+/* =========================================================
+   TILES DO MAPA – filtro escuro via CSS (sem API key)
+   Inverte as cores do OSM e aplica rotação de matiz para
+   criar um mapa de fundo escuro de forma gratuita.
+   ========================================================= */
+.tile-escuro {
+    filter: invert(100%) hue-rotate(180deg) brightness(90%) contrast(88%) saturate(0.8);
+}
+
+/* Mapa */
+#mapa {
+    flex: 1;
+    height: 100%;
+    z-index: 1;
+}
+
+/* =========================================================
+   POPUP CUSTOMIZADO (Infosiga style)
+   O conteúdo do popup usa cores inline explícitas no JS.
+   Aqui garantimos que o wrapper do Leaflet não sobreponha.
+   ========================================================= */
+.custom-popup-infosiga .leaflet-popup-content-wrapper {
+    padding: 0;
+    overflow: hidden;
+    border-radius: 12px;
+    box-shadow: 0 8px 24px rgba(0,0,0,0.18);
+    background: transparent;  /* deixa o div interno controlar a cor */
+    border: none;
+}
+
+.custom-popup-infosiga .leaflet-popup-content {
+    margin: 0;
+    line-height: 1.5;
+}
+
+/* Seta do popup – tema claro */
+.custom-popup-infosiga .leaflet-popup-tip {
+    background: #ffffff;
+}
+
+/* Seta do popup – tema escuro */
+[data-theme="dark"] .custom-popup-infosiga .leaflet-popup-tip {
+    background: #1e2030;
+}
+
+/* Botão X de fechar popup */
+.custom-popup-infosiga .leaflet-popup-close-button {
+    color: #fff !important;
+    font-size: 18px;
+    right: 6px !important;
+    top: 6px !important;
+}
+
+/* =========================================================
+   PÁGINA DEDICADA: METODOLOGIA & BENCHMARK CIENTÍFICO
+   ========================================================= */
+body.page-metodologia {
+    overflow-y: auto !important;
+    height: auto !important;
+    min-height: 100vh;
+}
+
+.metodologia-nav {
+    position: sticky;
+    top: 0;
+    z-index: 1000;
+    background: var(--panel-bg);
+    backdrop-filter: blur(var(--panel-blur));
+    -webkit-backdrop-filter: blur(var(--panel-blur));
+    border-bottom: 1px solid var(--border);
+    box-shadow: var(--shadow);
+    padding: 12px 24px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+}
+
+.nav-brand {
+    font-size: 1.15rem;
+    font-weight: 700;
+    color: var(--text);
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    text-decoration: none;
+}
+
+.nav-brand i {
+    color: var(--primary);
+}
+
+.nav-actions {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+}
+
+.btn-nav-voltar {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    padding: 8px 16px;
+    background: var(--primary);
+    color: #ffffff;
+    border-radius: 8px;
+    font-size: 0.875rem;
+    font-weight: 600;
+    text-decoration: none;
+    transition: all var(--transition);
+}
+
+.btn-nav-voltar:hover {
+    background: var(--primary-dk);
+    transform: translateY(-1px);
+    box-shadow: 0 4px 12px rgba(52, 152, 219, 0.35);
+}
+
+.metodologia-container {
+    max-width: 1080px;
+    margin: 0 auto;
+    padding: 36px 20px 80px 20px;
+    display: flex;
+    flex-direction: column;
+    gap: 32px;
+}
+
+/* Hero */
+.metodologia-hero {
+    text-align: center;
+    padding: 20px 0 10px 0;
+}
+
+.metodologia-hero .badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 5px 12px;
+    background: rgba(52, 152, 219, 0.12);
+    color: var(--primary);
+    border: 1px solid rgba(52, 152, 219, 0.25);
+    border-radius: 20px;
+    font-size: 0.8rem;
+    font-weight: 600;
+    margin-bottom: 14px;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+}
+
+.metodologia-hero h1 {
+    font-size: 2.1rem;
+    font-weight: 700;
+    color: var(--text);
+    margin-bottom: 12px;
+    line-height: 1.25;
+}
+
+.metodologia-hero p {
+    font-size: 1.05rem;
+    color: var(--text-muted);
+    max-width: 800px;
+    margin: 0 auto;
+    line-height: 1.6;
+}
+
+/* Grid de KPIs */
+.kpi-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(230px, 1fr));
+    gap: 18px;
+}
+
+.kpi-card {
+    background: var(--panel-bg);
+    backdrop-filter: blur(var(--panel-blur));
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    padding: 22px 18px;
+    box-shadow: var(--shadow);
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    position: relative;
+    overflow: hidden;
+    transition: transform var(--transition), box-shadow var(--transition);
+}
+
+.kpi-card:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 12px 32px rgba(52, 152, 219, 0.15);
+}
+
+.kpi-icon {
+    font-size: 1.6rem;
+    margin-bottom: 4px;
+}
+
+.kpi-card.cobertura .kpi-icon { color: var(--vitima); }
+.kpi-card.area .kpi-icon { color: var(--primary); }
+.kpi-card.fator .kpi-icon { color: var(--sem); }
+.kpi-card.datum .kpi-icon { color: #9b59b6; }
+
+.kpi-valor {
+    font-size: 1.9rem;
+    font-weight: 700;
+    color: var(--text);
+    line-height: 1.1;
+}
+
+.kpi-rotulo {
+    font-size: 0.9rem;
+    font-weight: 600;
+    color: var(--text);
+}
+
+.kpi-desc {
+    font-size: 0.8rem;
+    color: var(--text-muted);
+    line-height: 1.4;
+}
+
+/* Seções de Conteúdo */
+.secao-conteudo {
+    background: var(--panel-bg);
+    backdrop-filter: blur(var(--panel-blur));
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    padding: 30px;
+    box-shadow: var(--shadow);
+}
+
+.secao-conteudo h2 {
+    font-size: 1.35rem;
+    font-weight: 700;
+    color: var(--primary);
+    margin-bottom: 18px;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    border-bottom: 1px solid var(--border);
+    padding-bottom: 12px;
+}
+
+.secao-conteudo h3 {
+    font-size: 1.05rem;
+    font-weight: 600;
+    color: var(--text);
+    margin-top: 20px;
+    margin-bottom: 8px;
+}
+
+.secao-conteudo p, .secao-conteudo li {
+    font-size: 0.925rem;
+    color: var(--text-muted);
+    line-height: 1.65;
+}
+
+.secao-conteudo ul {
+    padding-left: 20px;
+    margin: 10px 0;
+}
+
+/* Tabela Comparativa */
+.tabela-wrapper {
+    overflow-x: auto;
+    margin: 20px 0;
+    border-radius: 10px;
+    border: 1px solid var(--border);
+}
+
+.tabela-cientifica {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 0.875rem;
+    text-align: left;
+}
+
+.tabela-cientifica th, .tabela-cientifica td {
+    padding: 14px 16px;
+    border-bottom: 1px solid var(--border);
+}
+
+.tabela-cientifica th {
+    background: rgba(52, 152, 219, 0.08);
+    color: var(--text);
+    font-weight: 700;
+    text-transform: uppercase;
+    font-size: 0.78rem;
+    letter-spacing: 0.04em;
+}
+
+.tabela-cientifica tr:last-child td {
+    border-bottom: none;
+}
+
+.tabela-cientifica tr:hover td {
+    background: rgba(52, 152, 219, 0.04);
+}
+
+.tag-destaque {
+    display: inline-block;
+    padding: 3px 8px;
+    border-radius: 4px;
+    font-size: 0.75rem;
+    font-weight: 700;
+}
+
+.tag-destaque.dbscan {
+    background: rgba(46, 204, 113, 0.15);
+    color: #27ae60;
+    border: 1px solid rgba(46, 204, 113, 0.3);
+}
+
+.tag-destaque.kmeans {
+    background: rgba(243, 156, 18, 0.15);
+    color: #d68910;
+    border: 1px solid rgba(243, 156, 18, 0.3);
+}
+
+.tag-destaque.bairros {
+    background: rgba(231, 76, 60, 0.15);
+    color: #c0392b;
+    border: 1px solid rgba(231, 76, 60, 0.3);
+}
+
+/* Terminal de Auditoria */
+.terminal-card {
+    background: #141721;
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    border-radius: 10px;
+    overflow: hidden;
+    margin: 20px 0;
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.4);
+}
+
+.terminal-header {
+    background: #1e2230;
+    padding: 10px 16px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+}
+
+.terminal-dots {
+    display: flex;
+    gap: 6px;
+}
+
+.terminal-dots span {
+    width: 10px;
+    height: 10px;
+    border-radius: 50%;
+    display: inline-block;
+}
+
+.dot-red { background: #ff5f56; }
+.dot-yellow { background: #ffbd2e; }
+.dot-green { background: #27c93f; }
+
+.terminal-title {
+    font-family: monospace;
+    font-size: 0.78rem;
+    color: #8b949e;
+}
+
+.btn-copiar-terminal {
+    background: rgba(255, 255, 255, 0.08);
+    border: 1px solid rgba(255, 255, 255, 0.15);
+    color: #e6edf3;
+    padding: 4px 10px;
+    border-radius: 6px;
+    font-size: 0.75rem;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    gap: 5px;
+    transition: all 0.2s;
+}
+
+.btn-copiar-terminal:hover {
+    background: var(--primary);
+    border-color: var(--primary);
+}
+
+.terminal-body {
+    padding: 16px 20px;
+    font-family: 'Courier New', Courier, monospace;
+    font-size: 0.85rem;
+    line-height: 1.6;
+    color: #7ee787;
+    overflow-x: auto;
+}
+
+.terminal-body .comment {
+    color: #8b949e;
+}
+
+.terminal-body .output {
+    color: #c9d1d9;
+    margin-top: 10px;
+}
+
+/* =========================================================
+   RESPONSIVIDADE (Mobile-first)
+   ========================================================= */
+@media (max-width: 768px) {
+    .container {
+        flex-direction: column-reverse;
+    }
+
+    .painel-filtros {
+        width: 100%;
+        max-height: 42dvh;
+        border-right: none;
+        border-top: 1px solid var(--border);
+        border-radius: 0;
+        overflow-y: auto;
+    }
+
+    #mapa {
+        flex: 1;
+        height: 58dvh;
+        width: 100%;
+    }
+}
+
+/* =========================================================
+   TOOLTIP CUSTOMIZADO (Instantâneo)
+   ========================================================= */
+.tooltip-container {
+    position: relative;
+    display: inline-block;
+}
+
+.tooltip-container .tooltip-text {
+    visibility: hidden;
+    width: 200px;
+    background-color: var(--panel-bg);
+    color: var(--text);
+    text-align: center;
+    border-radius: 8px;
+    padding: 8px;
+    position: absolute;
+    z-index: 1005;
+    bottom: 125%;
+    left: 50%;
+    transform: translateX(-50%);
+    opacity: 0;
+    transition: opacity 0.1s ease-in-out;
+    border: 1px solid var(--border);
+    box-shadow: var(--shadow);
+    font-size: 0.75rem;
+    font-weight: 500;
+    backdrop-filter: blur(var(--panel-blur));
+    -webkit-backdrop-filter: blur(var(--panel-blur));
+    pointer-events: none;
+}
+
+/* Seta do tooltip */
+.tooltip-container .tooltip-text::after {
+    content: "";
+    position: absolute;
+    top: 100%;
+    left: 50%;
+    margin-left: -5px;
+    border-width: 5px;
+    border-style: solid;
+    border-color: var(--border) transparent transparent transparent;
+}
+
+.tooltip-container:hover .tooltip-text {
+    visibility: visible;
+    opacity: 1;
+}
