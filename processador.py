@@ -14,7 +14,7 @@ metrics = {
 }
 metrics['memory_initial_mb'] = get_memory_mb()
 
-# 1. Arquivo base – usando apenas período confiável 2022‑2026
+# 1. Arquivo base – período 2022‑2026
 arq_sinistros_new1 = 'data/raw/sinistros_2022-2024.csv'
 arq_sinistros_new2 = 'data/raw/sinistros_2025-2026.csv'
 arq_veiculos_new1 = 'data/raw/veiculos_2022-2024.csv'
@@ -40,7 +40,7 @@ try:
     df_pes = pd.concat([ler_csv(arq_pessoas_new1), ler_csv(arq_pessoas_new2)], ignore_index=True)
     metrics['steps']['1_leitura'] = {'time_s': round(time.time() - t0, 2), 'memory_mb': get_memory_mb()}
 
-    print("2. Filtrando apenas a cidade de Franca...")
+    print("2. Filtrando registros do município de Franca...")
     t0 = time.time()
     col_municipio = 'municipio' if 'municipio' in df_sin.columns else 'MUNICIPIO'
     df_sin = df_sin[df_sin[col_municipio].str.upper() == 'FRANCA']

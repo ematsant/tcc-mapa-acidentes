@@ -14,7 +14,7 @@ with open('dados_acidentes.json', 'r', encoding='utf-8') as f:
     dados = json.load(f)
 
 df = pd.DataFrame(dados)
-# Focar apenas nos acidentes graves (que são o alvo das políticas de saúde/trânsito)
+# Filtragem de acidentes com vítimas ou óbitos para a análise espacial
 df_graves = df[df['gravidade'].isin(['fatal', 'com_vitima'])].copy()
 
 # Criar GeoDataFrame com coordenadas em Lat/Lon (WGS84)
@@ -22,7 +22,7 @@ geometry = [Point(xy) for xy in zip(df_graves['longitude'], df_graves['latitude'
 gdf_acidentes = gpd.GeoDataFrame(df_graves, geometry=geometry, crs="EPSG:4326")
 
 # Reprojetar para o sistema UTM de Franca (SIRGAS 2000 / UTM zone 23S - EPSG:31983)
-# Isso permite calcular áreas precisas em metros quadrados.
+# Projeção plana para cálculo de distâncias e áreas no sistema métrico.
 gdf_acidentes = gdf_acidentes.to_crs(epsg=31983)
 
 # 2. Carregar hotspots gerados pelo DBSCAN
@@ -89,8 +89,8 @@ print(f"   • Área Ocupada: {area_kmeans_km2:.2f} km²")
 print(f"   • Ocupação do Município: {pct_area_kmeans:.2f}% de Franca")
 
 print("\n3. COMPARAÇÃO DOS RESULTADOS:")
-print(f"   • O K-Means precisou de uma área {z_vezes:.2f}x maior para cobrir os mesmos acidentes.")
-print(f"   • Conclusão: As 111 áreas identificadas concentram {pct_cobertura:.1f}% dos acidentes graves")
-print(f"     em apenas {pct_area_dbscan:.2f}% do território de Franca.")
+print(f"   • Razão de Área: A área delimitada pelo K-Means é {z_vezes:.2f} vezes maior que a do DBSCAN.")
+print(f"   • Síntese: As {num_clusters} áreas de risco concentram {pct_cobertura:.2f}% dos acidentes com vítimas e óbitos")
+print(f"     em {pct_area_dbscan:.2f}% do território do município de Franca ({area_dbscan_km2:.2f} km² de {AREA_FRANCA_KM2} km²).")
 print("=" * 70)
 

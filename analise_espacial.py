@@ -78,7 +78,7 @@ for cenario in cenarios:
             pct_motos = round((qtd_motos / qtd_acidentes) * 100, 1) if qtd_acidentes > 0 else 0
             pct_carros = round((qtd_carros / qtd_acidentes) * 100, 1) if qtd_acidentes > 0 else 0
             
-            # Turno e dia mais perigosos
+            # Turno e dia de maior incidência
             turno_comum = grupo['turno'].mode().iloc[0] if not grupo['turno'].empty else 'N/A'
             dia_comum = grupo['dia_semana'].mode().iloc[0] if not grupo['dia_semana'].empty else 'N/A'
                 

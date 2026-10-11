@@ -332,8 +332,8 @@ function atualizarMapa(dados) {
                 const props = feature.properties;
                 layer.bindPopup(`
                     <div style="font-family: 'Inter', sans-serif; font-size: 13px; text-align: center;">
-                        <b style="color: #c0392b; font-size: 14px;">⚠️ Zona de Risco Crítico</b><br>
-                        (DBSCAN - Período: ${props.periodo})<hr style="margin: 5px 0;">
+                        <b style="color: #c0392b; font-size: 14px;">Área de Risco Delimitada</b><br>
+                        <span style="font-size: 11px; color: var(--text-secondary);">(DBSCAN - Período: ${props.periodo})</span><hr style="margin: 6px 0;">
                         <b>Total de Acidentes:</b> ${props.qtd_acidentes}<br>
                         <b style="color: #e74c3c">Fatais:</b> ${props.fatais}<br>
                         <b style="color: #f39c12">Com Vítima:</b> ${props.com_vitima}

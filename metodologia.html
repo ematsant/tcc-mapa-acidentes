@@ -42,13 +42,13 @@
         <!-- Hero -->
         <section class="metodologia-hero">
             <div class="badge">
-                <i class="fas fa-microscope"></i> Metodologia & Resultados Científicos
+                <i class="fas fa-chart-area"></i> Metodologia e Avaliação Espacial
             </div>
-            <h1>Como os Dados Foram Analisados e Validados</h1>
+            <h1>Metodologia e Resultados da Análise Espacial</h1>
             <p>
-                Este projeto investiga os acidentes de trânsito em Franca (SP) entre 2022 e 2026. 
-                Em vez de apenas somar números por bairros inteiros, utilizamos análise espacial inteligente (DBSCAN) 
-                para apontar os cruzamentos e trechos onde o risco real se concentra.
+                Este trabalho analisa os sinistros de trânsito registrados no município de Franca (SP) entre 2022 e 2026. 
+                A metodologia aplica o algoritmo de agrupamento espacial DBSCAN para delimitar trechos e cruzamentos de maior concentração de ocorrências, 
+                comparando as métricas obtidas com o modelo K-Means e com a agregação convencional por bairros.
             </p>
         </section>
 
@@ -57,89 +57,88 @@
             <div class="kpi-card cobertura">
                 <div class="kpi-icon"><i class="fas fa-crosshairs"></i></div>
                 <div class="kpi-valor">35,04%</div>
-                <div class="kpi-rotulo">Acidentes Graves Abrangidos</div>
+                <div class="kpi-rotulo">Sinistros com Vítimas e Óbitos</div>
                 <div class="kpi-desc">
-                    Mais de 35% de todos os acidentes com feridos ou mortes na cidade ocorreram dentro dessas áreas críticas identificadas.
+                    35,04% dos acidentes com vítimas ou óbitos registrados no município de Franca concentram-se nas 111 áreas de risco delimitadas.
                 </div>
             </div>
 
             <div class="kpi-card area">
                 <div class="kpi-icon"><i class="fas fa-compress-arrows-alt"></i></div>
                 <div class="kpi-valor">0,16%</div>
-                <div class="kpi-rotulo">Área do Município Ocupada</div>
+                <div class="kpi-rotulo">Área Territorial Ocupada</div>
                 <div class="kpi-desc">
-                    As 111 áreas de risco identificadas somam apenas <strong>0,98 km²</strong> de todo o território de Franca (605,60 km² - IBGE).
+                    As 111 áreas de risco identificadas somam 0,98 km², o que representa menos de 0,2% de todo o território do município de Franca (605,60 km² - IBGE).
                 </div>
             </div>
 
             <div class="kpi-card fator">
                 <div class="kpi-icon"><i class="fas fa-bolt"></i></div>
-                <div class="kpi-valor">61x mais preciso</div>
-                <div class="kpi-rotulo">Comparação com o K-Means</div>
+                <div class="kpi-valor">60,96x</div>
+                <div class="kpi-rotulo">Razão de Área vs. K-Means</div>
                 <div class="kpi-desc">
-                    Para englobar os mesmos acidentes, o método tradicional K-Means precisou de <strong>59,68 km²</strong> — uma área 61 vezes maior e cheia de vazios.
+                    Para abranger a mesma amostra de acidentes, o modelo K-Means delimitou 59,68 km² (9,86% do município), uma área 60,96 vezes maior que a do DBSCAN.
                 </div>
             </div>
 
             <div class="kpi-card datum">
                 <div class="kpi-icon"><i class="fas fa-globe-americas"></i></div>
                 <div class="kpi-valor">SIRGAS 2000</div>
-                <div class="kpi-rotulo">Medição em Metros Reais</div>
+                <div class="kpi-rotulo">Sistema Geodésico de Referência</div>
                 <div class="kpi-desc">
-                    Uso da projeção oficial brasileira (UTM 23S), que calcula áreas em metros quadrados reais e elimina distorções do GPS comum.
+                    Adoção da projeção SIRGAS 2000 / UTM zone 23S (EPSG:31983), que calcula distâncias e áreas no sistema métrico plano.
                 </div>
             </div>
         </section>
 
         <!-- Tabela Comparativa de Abordagens -->
         <section class="secao-conteudo">
-            <h2><i class="fas fa-balance-scale"></i> Por que o Método Utilizado é Mais Eficiente?</h2>
+            <h2><i class="fas fa-balance-scale"></i> Comparativo de Métodos de Agrupamento Espacial</h2>
             <p>
-                Quando a prefeitura ou a imprensa junta os dados por bairros, a informação fica diluída: um bairro inteiro parece perigoso, 
-                mas muitas vezes o problema está em apenas uma avenida. A tabela abaixo compara a abordagem tradicional por bairros, 
-                um algoritmo geométrico comum (K-Means) e a solução desenvolvida neste trabalho (DBSCAN):
+                A agregação de sinistros por divisões administrativas (bairros) distribui as ocorrências de forma homogênea sobre áreas territoriais extensas. 
+                A tabela a seguir compara as propriedades da divisão por bairros, do algoritmo particional K-Means e do algoritmo por densidade DBSCAN:
             </p>
 
             <div class="tabela-wrapper">
                 <table class="tabela-cientifica">
                     <thead>
                         <tr>
-                            <th>Critério</th>
-                            <th>Divisão por Bairros (Tradicional)</th>
-                            <th>Modelo de Controle (K-Means)</th>
-                            <th>Modelo Deste Projeto (DBSCAN)</th>
+                            <th>Critério Avaliado</th>
+                            <th>Divisão Administrativa por Bairros</th>
+                            <th>Agrupamento Particional (K-Means)</th>
+                            <th>Agrupamento por Densidade (DBSCAN)</th>
                         </tr>
                     </thead>
                     <tbody>
                         <tr>
-                            <td><strong>Como agrupa</strong></td>
-                            <td>Limites administrativos de bairros</td>
-                            <td>Círculos geométricos rígidos</td>
-                            <td><span class="tag-destaque dbscan">Segue o formato real das ruas e avenidas</span></td>
+                            <td><strong>Unidade de Agrupamento</strong></td>
+                            <td>Limites político-administrativos</td>
+                            <td>Centróides particionais euclidianos</td>
+                            <td><span class="tag-destaque dbscan">Densidade contínua de pontos</span></td>
                         </tr>
                         <tr>
-                            <td><strong>Área necessária</strong></td>
-                            <td>Muito ampla (40% a 50% da mancha urbana)</td>
-                            <td>59,68 km² (quase 10% de Franca)</td>
-                            <td><span class="tag-destaque dbscan">0,98 km² (apenas 0,16% de Franca)</span></td>
+                            <td><strong>Área Delimitada em Franca</strong></td>
+                            <td>40% a 50% da mancha urbana</td>
+                            <td>59,68 km² (9,86% do município)</td>
+                            <td><span class="tag-destaque dbscan">0,98 km² (0,16% do município)</span></td>
                         </tr>
                         <tr>
-                            <td><strong>Acidentes isolados</strong></td>
-                            <td><span class="tag-destaque bairros">Mascara</span> (soma acidentes raros junto com os graves)</td>
-                            <td><span class="tag-destaque kmeans">Força</span> (obriga todo acidente a entrar num grupo)</td>
-                            <td><span class="tag-destaque dbscan">Descarta ruídos</span> (isola acidentes ocasionais)</td>
+                            <td><strong>Ocorrências Isoladas</strong></td>
+                            <td>Incorporadas ao total do bairro</td>
+                            <td>Atribuídas a um cluster euclidiano</td>
+                            <td><span class="tag-destaque dbscan">Classificadas como ruído espacial</span></td>
                         </tr>
                         <tr>
-                            <td><strong>Formato no mapa</strong></td>
-                            <td>Polígonos fixos do mapa da cidade</td>
-                            <td>Polígonos inflados (engloba quarteirões vazios)</td>
-                            <td><span class="tag-destaque dbscan">Polígonos ajustados ao eixo das vias</span></td>
+                            <td><strong>Geometria Resultante</strong></td>
+                            <td>Polígonos censitários pré-definidos</td>
+                            <td>Envoltórias convexas (Convex Hull)</td>
+                            <td><span class="tag-destaque dbscan">Envoltórias côncavas (Concave Hull)</span></td>
                         </tr>
                         <tr>
-                            <td><strong>Ação prática no trânsito</strong></td>
-                            <td>Genérica (ex: "intensificar blitz no bairro X")</td>
-                            <td>Imprecisa</td>
-                            <td><span class="tag-destaque dbscan">Cirúrgica (ex: "instalar semáforo no cruzamento Y")</span></td>
+                            <td><strong>Escala de Aplicação</strong></td>
+                            <td>Setorial (escala de bairro)</td>
+                            <td>Intermediária (escala regional)</td>
+                            <td><span class="tag-destaque dbscan">Local (cruzamentos e trechos viários)</span></td>
                         </tr>
                     </tbody>
                 </table>
@@ -148,54 +147,53 @@
 
         <!-- Detalhamento das Etapas Metodológicas -->
         <section class="secao-conteudo">
-            <h2><i class="fas fa-cogs"></i> Como os Dados Foram Tratados e Processados</h2>
+            <h2><i class="fas fa-cogs"></i> Procedimentos de Tratamento e Modelagem dos Dados</h2>
 
-            <h3>1. Coleta e Limpeza dos Dados (Infosiga SP)</h3>
+            <h3>1. Fonte e Tratamento dos Dados</h3>
             <p>
-                Os registros foram obtidos da base oficial do <strong>Infosiga SP</strong> (Sistema de Informações Gerenciais de Acidentes de Trânsito do Estado de São Paulo), 
-                abrangendo o período de <strong>2022 a 2026</strong>:
+                Os registros foram extraídos da base oficial do <strong>Infosiga SP</strong> (Sistema de Informações Gerenciais de Acidentes de Trânsito do Estado de São Paulo), 
+                cobrindo o período de <strong>2022 a 2026</strong>:
             </p>
             <ul>
-                <li><strong>Filtro Municipal:</strong> Foram selecionados apenas os registros ocorridos no município de Franca.</li>
-                <li><strong>Remoção de Inconsistências:</strong> Registros sem latitude e longitude válidas ou com erros de preenchimento foram tratados e descartados.</li>
-                <li><strong>Cruzamento de Tabelas:</strong> As informações do sinistro, dos veículos e das vítimas foram unificadas em uma visão única.</li>
+                <li><strong>Filtro Territorial:</strong> Seleção dos sinistros georreferenciados no município de Franca.</li>
+                <li><strong>Validação de Coordenadas:</strong> Exclusão de registros com coordenadas ausentes ou externas aos limites do município (latitude -21.0 a -20.0 e longitude -48.0 a -46.0).</li>
+                <li><strong>Integração de Entidades:</strong> Consolidação dos dados de sinistros, veículos envolvidos e perfil de vítimas por identificador comum.</li>
             </ul>
 
-            <h3>2. Classificação de Gravidade e Custo Social (IPEA)</h3>
+            <h3>2. Ponderação por Gravidade e Custos Sociais (IPEA)</h3>
             <p>
-                Para refletir o impacto real no trânsito, cada ocorrência recebeu um peso de acordo com sua severidade, 
-                utilizando os valores de referência do <strong>IPEA (Instituto de Pesquisa Econômica Aplicada, 2020)</strong>:
+                Com base nas estimativas do <strong>Instituto de Pesquisa Econômica Aplicada (IPEA, 2020)</strong>, 
+                cada ocorrência recebeu ponderação conforme a severidade registrada no boletim:
             </p>
             <ul>
-                <li><strong>Acidente Fatal (Óbito):</strong> Peso <strong>5</strong> | Custo social estimado: <strong>R$ 664.821,00</strong>.</li>
-                <li><strong>Com Vítima (Feridos leves ou graves):</strong> Peso <strong>2</strong> | Custo social estimado: <strong>R$ 261.689,00</strong>.</li>
-                <li><strong>Sem Vítima (Apenas danos materiais):</strong> Peso <strong>1</strong> | Custo social estimado: <strong>R$ 25.000,00</strong>.</li>
+                <li><strong>Sinistro Fatal (com óbito):</strong> Peso <strong>5</strong> | Custo social estimado: <strong>R$ 664.821,00</strong>.</li>
+                <li><strong>Com Vítima (feridos):</strong> Peso <strong>2</strong> | Custo social estimado: <strong>R$ 261.689,00</strong>.</li>
+                <li><strong>Sem Vítima (danos materiais):</strong> Peso <strong>1</strong> | Custo social estimado: <strong>R$ 25.000,00</strong>.</li>
             </ul>
 
-            <h3>3. Como o Algoritmo DBSCAN Localiza as Zonas de Risco</h3>
+            <h3>3. Parametrização do Algoritmo DBSCAN</h3>
             <p>
-                O <strong>DBSCAN</strong> agrupa pontos com base na proximidade física entre eles, adaptando-se às ruas da cidade:
+                O modelo DBSCAN agrupa registros com base na densidade de ocorrências ponderadas no espaço bidimensional:
             </p>
             <ul>
-                <li><strong>Raio de Proximidade (50 metros):</strong> Distância adequada para abranger cruzamentos e pequenos trechos de quarteirões.</li>
-                <li><strong>Mínimo de 20 ocorrências ponderadas em 5 anos:</strong> Segue recomendações técnicas do <em>Highway Safety Manual (HSM)</em> para evitar que acidentes esporádicos criem falsos pontos críticos.</li>
-                <li><strong>Delimitação das Áreas:</strong> O sistema gera polígonos contornando os pontos agrupados, desenhando as 111 áreas visíveis no mapa.</li>
+                <li><strong>Raio de Busca (&epsilon;):</strong> <code>50 metros</code> (convertido em radianos via fórmula de Haversine), correspondente à dimensão média de cruzamentos viários urbanos.</li>
+                <li><strong>Densidade Mínima (MinPts):</strong> <code>20 ocorrências ponderadas em 5 anos</code>, em conformidade com as diretrizes do <em>Highway Safety Manual (HSM)</em> para controle de variabilidade estatística temporal.</li>
+                <li><strong>Formação dos Polígonos:</strong> Geração de envoltórias côncavas (<em>Concave Hull</em> com razão 0.1) em torno dos pontos agrupados, com buffer de suavização de 0.0002 graus, resultando nas 111 áreas mapeadas.</li>
             </ul>
 
-            <h3>4. Medição Precisa em Metros (SIRGAS 2000)</h3>
+            <h3>4. Conversão para Projeção Métrica (SIRGAS 2000)</h3>
             <p>
-                Para que o cálculo de área fosse rigoroso e confiável, as coordenadas foram convertidas para o sistema cartográfico 
-                oficial do Brasil para a nossa região: <strong>SIRGAS 2000 / UTM zone 23S (EPSG:31983)</strong>. 
-                Isso assegura que as medidas de área sejam calculadas em metros quadrados exatos, sem distorções.
+                Para o cálculo das áreas em metros quadrados planos, as geometrias em coordenadas geográficas (WGS84) 
+                foram reprojetadas para o sistema de referência geodésico oficial brasileiro <strong>SIRGAS 2000 / UTM zone 23S (EPSG:31983)</strong>.
             </p>
         </section>
 
         <!-- Reprodutibilidade Científica e Terminal -->
         <section class="secao-conteudo">
-            <h2><i class="fas fa-terminal"></i> Verificação Independente dos Resultados</h2>
+            <h2><i class="fas fa-terminal"></i> Verificação e Reprodutibilidade dos Resultados</h2>
             <p>
-                Qualquer avaliador da banca ou pesquisador pode confirmar esses cálculos executando o script de teste no próprio terminal. 
-                O script lê a base de acidentes e as áreas geradas, refazendo os cálculos matemáticos em tempo real:
+                Para permitir a conferência independente dos cálculos, o script <code>calcula_metricas_area.py</code> 
+                processa as bases de dados e executa as rotinas geodésicas em tempo real:
             </p>
 
             <div class="terminal-card">
@@ -211,9 +209,9 @@
                     </button>
                 </div>
                 <div class="terminal-body">
-                    <span class="comment"># Comando para executar no terminal do projeto:</span><br>
+                    <span class="comment"># Comando para execução no terminal:</span><br>
                     <span>$ python calcula_metricas_area.py</span><br><br>
-                    <span class="comment"># --- Resultado gerado na tela ---</span><br>
+                    <span class="comment"># --- Saída gerada pelo script ---</span><br>
                     <div class="output">
                         Processando dados espaciais de Franca - SP...<br>
                         ======================================================================<br>
@@ -229,9 +227,9 @@
                         &nbsp;&nbsp;• Área Ocupada: 59.68 km²<br>
                         &nbsp;&nbsp;• Ocupação do Município: 9.86% de Franca<br><br>
                         3. COMPARAÇÃO DOS RESULTADOS:<br>
-                        &nbsp;&nbsp;• O K-Means precisou de uma área 61x maior para cobrir os mesmos acidentes.<br>
-                        &nbsp;&nbsp;• Conclusão: As 111 áreas identificadas concentram 35% dos acidentes graves<br>
-                        &nbsp;&nbsp;&nbsp;&nbsp;em apenas 0,16% do território de Franca.<br>
+                        &nbsp;&nbsp;• Razão de Área: A área delimitada pelo K-Means é 60.96 vezes maior que a do DBSCAN.<br>
+                        &nbsp;&nbsp;• Síntese: As 111 áreas de risco identificadas concentram 35.04% dos acidentes com vítimas e óbitos<br>
+                        &nbsp;&nbsp;&nbsp;&nbsp;em 0.16% do território do município de Franca (0.98 km² de 605.6 km²).<br>
                         ======================================================================
                     </div>
                 </div>
