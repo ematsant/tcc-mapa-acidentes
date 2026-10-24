@@ -1,8 +1,20 @@
 # Mineração de Dados Espaciais para Segurança Viária
 
-> **Trabalho de Conclusão de Curso (TCC)**  
+[![GitHub Pages](https://img.shields.io/badge/Demo-GitHub%20Pages-2ea44f?style=for-the-badge&logo=github)](https://ematsant.github.io/tcc-mapa-acidentes/)
+[![Python](https://img.shields.io/badge/Python-3.10+-3776AB?style=for-the-badge&logo=python&logoColor=white)](https://www.python.org/)
+[![Leaflet](https://img.shields.io/badge/Leaflet-1.9.4-199900?style=for-the-badge&logo=leaflet&logoColor=white)](https://leafletjs.com/)
+[![License: MIT](https://img.shields.io/badge/License-MIT-blue?style=for-the-badge)](LICENSE)
+
+> **Trabalho de Conclusão de Curso (TCC)** — Bacharelado em Ciência da Computação  
+> **Instituição:** Universidade de Franca (UNIFRAN)  
+> **Autor:** Matheus Moraes ([@ematsant](https://github.com/ematsant))  
 > **Estudo de Caso:** Município de Franca – SP (2022–2026)  
 > **Abordagem:** Aprendizado de Máquina Não Supervisionado por Densidade (DBSCAN) vs. Agrupamento Particional (K-Means) e Divisão Administrativa por Bairros.
+
+---
+
+> 🌐 **Demonstração Online no GitHub Pages:**  
+> Acesse a aplicação web interativa em produção: **[https://ematsant.github.io/tcc-mapa-acidentes/](https://ematsant.github.io/tcc-mapa-acidentes/)**
 
 ---
 
@@ -54,6 +66,9 @@ A avaliação comparativa foi processada no sistema de coordenadas métricas ofi
 
 Para conferência dos cálculos, as rotinas matemáticas podem ser executadas diretamente via terminal (no VS Code, pressione **`Ctrl + '`** ou acesse o menu **Terminal > Novo Terminal**):
 
+> [!NOTE]
+> **Base auditada já inclusa no repositório:** O arquivo [`dados_acidentes.json`](dados_acidentes.json) com todos os 9.259 sinistros já está pré-processado e empacotado no projeto. Assim, as etapas 1 e 2 de auditoria podem ser executadas de imediato, sem necessidade de baixar centenas de megabytes em dados brutos do Infosiga.
+
 ### 1. Clonar o repositório
 ```bash
 git clone https://github.com/ematsant/tcc-mapa-acidentes.git
@@ -70,19 +85,21 @@ source venv/bin/activate  # No Windows: venv\Scripts\activate
 pip install -r requirements.txt
 ```
 
-### 3. Executar o pipeline e os testes de dados
+### 3. Executar a auditoria e os modelos espaciais
 ```bash
-# Etapa 1: Executar o ETL com Auditoria Espacial
-python processador.py
+# Etapa 1: Executar a Auditoria Métrica Comparativa (SIRGAS 2000 UTM 23S)
+python calcula_metricas_area.py
 
-# Etapa 2: Gerar os Polígonos de Risco (DBSCAN)
+# Etapa 2: Gerar os Polígonos de Risco (DBSCAN em GeoJSON)
 python analise_espacial.py
 
-# Etapa 3: Executar a Auditoria Métrica Comparativa (SIRGAS 2000 UTM 23S)
-python calcula_metricas_area.py
+# (Opcional) Reexecução completa do pipeline ETL com dados brutos:
+# Caso queira reprocessar os microdados originais do Infosiga SP,
+# baixe os CSVs na pasta data/raw/ e execute:
+# python processador.py
 ```
 
-### Saída gerada no terminal:
+### Saída gerada no terminal (`calcula_metricas_area.py`):
 ```text
 Processando dados espaciais de Franca - SP...
 ================================================================================
@@ -130,7 +147,7 @@ Período: Jan/2022 a Ago/2026 (4 anos e 8 meses) | Sistema: SIRGAS 2000 (UTM 23S
 
 ---
 
-## 💻 Executando e Visualizando a Aplicação Web Localmente (com foco no VS Code)
+## 💻 Executando e Visualizando a Aplicação Web Localmente
 
 A aplicação web é uma **Single Page Application (SPA)** estática que não depende de servidores de backend ou banco de dados relacional. Como os mapas consomem arquivos `.json` e `.geojson`, os navegadores exigem que a página seja servida por um protocolo HTTP local (evitando restrições de CORS que ocorrem ao abrir arquivos diretamente como `file://`).
 
@@ -160,7 +177,7 @@ Para visualizar este documento renderizado com formatação visual e tabelas:
 ## 📂 Estrutura de Arquivos
 
 ```text
-├── index.html                 # Interface web principal do mapa interativo
+├── index.html                 # Interface web principal do mapa interativo (GitHub Pages)
 ├── metodologia.html           # Página dedicada de Metodologia & Benchmark Científico
 ├── style.css                  # Folha de estilos completa (Glassmorphism e temas claro/escuro)
 ├── script.js                  # Lógica interativa da aplicação (Leaflet, filtros e gráficos)
@@ -173,8 +190,9 @@ Para visualizar este documento renderizado com formatação visual e tabelas:
 ├── analise_espacial.py        # Algoritmo DBSCAN que gera os polígonos de risco
 ├── processador.py             # Script de extração, auditoria espacial e tratamento dos dados do Infosiga
 │
-├── requirements.txt           # Dependências Python (pandas, geopandas, shapely, scikit-learn)
+├── requirements.txt           # Dependências Python (pandas, geopandas, shapely, scikit-learn, psutil)
 ├── .gitignore                 # Regras de exclusão do Git (ignora dados brutos > 100MB e venv)
+├── LICENSE                    # Licença de código aberto (MIT)
 └── README.md                  # Este documento
 ```
 
@@ -187,4 +205,19 @@ Para visualizar este documento renderizado com formatação visual e tabelas:
 * **SÃO PAULO (Estado).** *Sistema de Informações Gerenciais de Acidentes de Trânsito do Estado de São Paulo - Infosiga SP.* Secretaria de Logística e Transportes do Estado de São Paulo, 2026.
 * **TRANSPORTATION RESEARCH BOARD.** *Highway Safety Manual (HSM).* Washington, D.C.: AASHTO, 2010.
 * **VITAL STRATEGIES.** *Guia de Geocodificação e Gestão de Dados de Segurança Viária.* Parceria por Cidades Saudáveis, 2021.
-* **WAZLAWICK, Raul Sidnei.** *Metodologia de Pesquisa para Ciência da Computação.* 2. ed. Rio de Janeiro: Elsevier, 2014.
+
+---
+
+## 👤 Informações Acadêmicas
+
+* **Autor:** Matheus Moraes ([@ematsant](https://github.com/ematsant))
+* **Curso:** Bacharelado em Ciência da Computação
+* **Instituição:** Universidade de Franca (UNIFRAN)
+* **Trabalho:** Trabalho de Conclusão de Curso (TCC)
+* **Ano:** 2026
+
+---
+
+## 📄 Licença
+
+Este projeto é disponibilizado sob a licença [MIT](LICENSE) — livre para estudos, pesquisas acadêmicas e aprimoramentos da gestão de segurança viária urbana.
