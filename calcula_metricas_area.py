@@ -39,12 +39,13 @@ area_dbscan_km2 = hotspots.geometry.area.sum() / 1e6
 pct_area_dbscan = (area_dbscan_km2 / AREA_FRANCA_KM2) * 100
 
 # ======================================================================
-# CÁLCULO 2: TAXA DE COBERTURA ESPACIAL DE SINISTROS GRAVES
+# CÁLCULO 2: TAXA DE CONCENTRAÇÃO ESPACIAL DE SINISTROS GRAVES
 # ======================================================================
 # Junção espacial (Spatial Join) entre sinistros severos e os polígonos DBSCAN
 acidentes_no_dbscan = gpd.sjoin(gdf_acidentes, hotspots, how="inner", predicate="intersects")
 acidentes_unicos = acidentes_no_dbscan.index.nunique()
 pct_cobertura = (acidentes_unicos / len(gdf_acidentes)) * 100
+fator_densidade = (acidentes_unicos / len(gdf_acidentes)) / (area_dbscan_km2 / AREA_FRANCA_KM2) if area_dbscan_km2 > 0 else 0
 
 # ======================================================================
 # CÁLCULO 3: BASELINE DE CONTROLE COMPARATIVO (K-MEANS)
@@ -73,24 +74,45 @@ pct_area_kmeans = (area_kmeans_km2 / AREA_FRANCA_KM2) * 100
 # ======================================================================
 # RELATÓRIO TÉCNICO DE RESULTADOS PARA APRESENTAÇÃO / DEFESA
 # ======================================================================
-print("=" * 70)
-print("RELATÓRIO DE AVALIAÇÃO ESPACIAL E RESULTADOS (TCC)")
-print("Município: Franca - SP | Projeção: SIRGAS 2000 / UTM 23S (EPSG:31983)")
-print("=" * 70)
+print("=" * 80)
+print("AVALIAÇÃO ESPACIAL DE ACIDENTES — MUNICÍPIO DE FRANCA/SP")
+print(f"Período: Jan/2022 a Ago/2026 (4 anos e 8 meses) | Sistema: SIRGAS 2000 (UTM 23S)")
+print("=" * 80)
 
-print("\n1. MODELO DBSCAN (Agrupamento por Densidade):")
-print(f"   • Acidentes com Vítimas e Óbitos: {pct_cobertura:.2f}%")
-print(f"   • Área Total Delimitada: {area_dbscan_km2:.2f} km²")
-print(f"   • Ocupação Territorial: {pct_area_dbscan:.2f}% de Franca (total de {AREA_FRANCA_KM2} km²)")
+print("\n1. BASE DE DADOS AUDITADA:")
+print(f"   • Total de acidentes válidos: {len(df):,} ocorrências (após limpeza de centróides)".replace(',', '.'))
+print(f"   • Acidentes com vítimas (feridos e óbitos): {len(gdf_acidentes):,} ocorrências ({len(gdf_acidentes)/len(df)*100:.1f}% da base)".replace(',', '.'))
+print("   • Escopo da modelagem: Identificar as áreas de maior concentração desses")
+print("     eventos com vítimas no município.")
 
-print("\n2. MODELO K-MEANS (Controle Particional):")
-print(f"   • Quantidade de Grupos Pareada: {num_clusters}")
-print(f"   • Área Total Delimitada: {area_kmeans_km2:.2f} km²")
-print(f"   • Ocupação Territorial: {pct_area_kmeans:.2f}% de Franca")
+print("\n" + "-" * 80)
+print("2. RESULTADOS DO MODELO PROPOSTO (DBSCAN — Agrupamento por Densidade):")
+print("-" * 80)
+print(f"   • Zonas de risco delimitadas: {num_clusters} áreas (cruzamentos e trechos viários)")
+print(f"   • Área total delimitada: {area_dbscan_km2:.2f} km² ({pct_area_dbscan:.2f}% do território de Franca)")
+print(f"   • Cobertura de eventos graves: {acidentes_unicos:,} ocorrências com vítimas (feridos e óbitos)".replace(',', '.'))
+print(f"   • Proporção observada: As áreas concentram {pct_cobertura:.2f}% dos acidentes com vítimas")
+print(f"     do município ({acidentes_unicos:,} de {len(gdf_acidentes):,} com feridos e óbitos) em {area_dbscan_km2:.2f} km².".replace(',', '.'))
 
-print("\n3. COMPARAÇÃO DOS RESULTADOS:")
-print(f"   • Razão de Área: O K-Means ocupou uma área {z_vezes:.2f} vezes maior que o DBSCAN.")
-print(f"   • Síntese: As {num_clusters} áreas de risco concentram {pct_cobertura:.2f}% dos acidentes com vítimas e óbitos")
-print(f"     em {pct_area_dbscan:.2f}% do território de Franca ({area_dbscan_km2:.2f} km² de {AREA_FRANCA_KM2} km²).")
-print("=" * 70)
+print("\n" + "-" * 80)
+print("3. COMPARAÇÃO COM O K-MEANS (Grupo de Controle Comparativo):")
+print("-" * 80)
+print(f"   • Quantidade de grupos pareada: K = {num_clusters} regiões equivalentes")
+print(f"   • Área delimitada pelo K-Means: {area_kmeans_km2:.2f} km² ({pct_area_kmeans:.2f}% do território municipal)")
+print(f"   • Razão de área: A área delimitada pelo K-Means foi {z_vezes:.2f} vezes maior")
+print("     que a área delimitada pelo DBSCAN para cobrir a mesma proporção de sinistros.")
+print("   • Diferença metodológica: O K-Means divide o espaço em polígonos convexos")
+print("     amplos que abrangem vazios urbanos; o DBSCAN contorna os pontos densos")
+print("     ao longo das vias e classifica as ocorrências isoladas como ruído.")
+
+print("\n" + "-" * 80)
+print("4. SÍNTESE COMPARATIVA E APLICAÇÃO:")
+print("-" * 80)
+print(f"   • O modelo baseado em densidade (DBSCAN) delimitou {area_dbscan_km2:.2f} km² para concentrar")
+print(f"     {pct_cobertura:.2f}% dos acidentes com vítimas (feridos e óbitos), enquanto o modelo")
+print(f"     particional (K-Means) demandou {area_kmeans_km2:.2f} km² para cobrir o mesmo volume.")
+print(f"   • Sob a perspectiva de aplicação prática, esses resultados indicam que o")
+print(f"     poder público pode atuar em {area_dbscan_km2:.2f} km² da malha viária para abranger")
+print("     quase um terço de todas as ocorrências com feridos e óbitos em Franca.")
+print("=" * 80)
 

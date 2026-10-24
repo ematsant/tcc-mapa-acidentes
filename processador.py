@@ -40,24 +40,73 @@ try:
     df_pes = pd.concat([ler_csv(arq_pessoas_new1), ler_csv(arq_pessoas_new2)], ignore_index=True)
     metrics['steps']['1_leitura'] = {'time_s': round(time.time() - t0, 2), 'memory_mb': get_memory_mb()}
 
-    print("2. Filtrando registros do município de Franca...")
+    print("2. Filtrando registros e auditando anomalias espaciais (Data Cleaning)...")
     t0 = time.time()
     col_municipio = 'municipio' if 'municipio' in df_sin.columns else 'MUNICIPIO'
     df_sin = df_sin[df_sin[col_municipio].str.upper() == 'FRANCA']
     df_sin = df_sin.dropna(subset=['latitude', 'longitude'])
-    metrics['steps']['2_filtragem'] = {'time_s': round(time.time() - t0, 2), 'memory_mb': get_memory_mb()}
+
+    # Conversão numérica de coordenadas para validação e auditoria
+    df_sin['lat_num'] = pd.to_numeric(df_sin['latitude'].astype(str).str.replace(',', '.'), errors='coerce')
+    df_sin['lon_num'] = pd.to_numeric(df_sin['longitude'].astype(str).str.replace(',', '.'), errors='coerce')
+    df_sin = df_sin.dropna(subset=['lat_num', 'lon_num'])
+
+    # Filtro geográfico preliminar para o quadrilátero de Franca
+    df_sin = df_sin[(df_sin['lat_num'] >= -21.0) & (df_sin['lat_num'] <= -20.0) & 
+                    (df_sin['lon_num'] >= -48.0) & (df_sin['lon_num'] <= -46.0)]
+
+    total_antes_limpeza = len(df_sin)
+
+    # AUDITORIA ESPACIAL: Identificação de artefatos de geocodificação por contingência (centroide/fallback)
+    # Agrupa coordenadas com resolução de ~11m (4 casas decimais)
+    df_sin['coord_audit_key'] = df_sin['lat_num'].round(4).astype(str) + ',' + df_sin['lon_num'].round(4).astype(str)
+
+    coord_stats = df_sin.groupby('coord_audit_key').agg(
+        total=('id_sinistro', 'count'),
+        ruas_unicas=('logradouro', lambda x: x.dropna().nunique())
+    ).reset_index()
+    coord_stats['razao_ruas'] = coord_stats['ruas_unicas'] / coord_stats['total']
+
+    # Regra: Coordenada com >= 8 sinistros, >= 5 logradouros distintos e razão >= 0.50
+    # indica contingência de centroide (point stacking artificial do Infosiga).
+    artefatos = coord_stats[
+        (coord_stats['total'] >= 8) & 
+        (coord_stats['ruas_unicas'] >= 5) & 
+        (coord_stats['razao_ruas'] >= 0.50)
+    ]
+    chaves_artefatos = set(artefatos['coord_audit_key'])
+
+    df_sin = df_sin[~df_sin['coord_audit_key'].isin(chaves_artefatos)].copy()
+    total_removidos = total_antes_limpeza - len(df_sin)
+
+    print(f"   • Total antes da limpeza: {total_antes_limpeza}")
+    print(f"   • Pontos de centroide/artefato identificados: {len(chaves_artefatos)}")
+    print(f"   • Ocorrências artificiais expurgadas: {total_removidos}")
+    print(f"   • Ocorrências espaciais legítimas mantidas: {len(df_sin)}")
+
+    metrics['data_cleaning_audit'] = {
+        'total_antes': int(total_antes_limpeza),
+        'total_removidos': int(total_removidos),
+        'total_mantidos': int(len(df_sin)),
+        'pontos_artefatos_detectados': int(len(chaves_artefatos)),
+        'detalhes_artefatos': artefatos.to_dict(orient='records')
+    }
+    metrics['steps']['2_filtragem_e_limpeza'] = {'time_s': round(time.time() - t0, 2), 'memory_mb': get_memory_mb()}
 
     print("3. Agrupando veículos por acidente...")
     t0 = time.time()
-    col_veic = 'tipo_veiculo' if 'tipo_veiculo' in df_veic.columns else df_veic.columns[-1]
-    df_veic_agg = df_veic.groupby(NOME_COLUNA_ID)[col_veic].apply(
+    ids_franca = set(df_sin[NOME_COLUNA_ID])
+    df_veic_franca = df_veic[df_veic[NOME_COLUNA_ID].isin(ids_franca)].copy()
+    col_veic = 'tipo_veiculo' if 'tipo_veiculo' in df_veic_franca.columns else df_veic_franca.columns[-1]
+    df_veic_agg = df_veic_franca.groupby(NOME_COLUNA_ID)[col_veic].apply(
         lambda x: ', '.join(x.dropna().astype(str).unique())
     ).reset_index()
     metrics['steps']['3_agrupamento_veiculos'] = {'time_s': round(time.time() - t0, 2), 'memory_mb': get_memory_mb()}
 
     print("4. Classificando gravidade das vítimas...")
     t0 = time.time()
-    df_pes['todas_infos'] = df_pes.apply(lambda row: ' '.join(row.dropna().astype(str).str.upper()), axis=1)
+    df_pes_franca = df_pes[df_pes[NOME_COLUNA_ID].isin(ids_franca)].copy()
+    df_pes_franca['todas_infos'] = df_pes_franca.apply(lambda row: ' '.join(row.dropna().astype(str).str.upper()), axis=1)
 
     def classifica_gravidade(textos):
         texto_completo = ' '.join(textos)
@@ -67,7 +116,7 @@ try:
             return 'com_vitima'
         return 'sem_vitima'
 
-    df_pes_agg = df_pes.groupby(NOME_COLUNA_ID)['todas_infos'].apply(classifica_gravidade).reset_index()
+    df_pes_agg = df_pes_franca.groupby(NOME_COLUNA_ID)['todas_infos'].apply(classifica_gravidade).reset_index()
     df_pes_agg.rename(columns={'todas_infos': 'gravidade_calculada'}, inplace=True)
     metrics['steps']['4_classificacao_vitimas'] = {'time_s': round(time.time() - t0, 2), 'memory_mb': get_memory_mb()}
 
@@ -89,14 +138,14 @@ try:
     dados_json = []
     for _, row in df_completo.iterrows():
         try:
-            lat = float(str(row['latitude']).replace(',', '.'))
-            lon = float(str(row['longitude']).replace(',', '.'))
+            lat = float(row['lat_num'])
+            lon = float(row['lon_num'])
             if not (-21.0 <= lat <= -20.0 and -48.0 <= lon <= -46.0):
                 continue
             # Ano
             ano = "Desconhecido"
             if 'ano_sinistro' in row and pd.notna(row['ano_sinistro']):
-                ano = str(row['ano_sinistro']).strip()
+                ano = str(int(float(row['ano_sinistro']))).strip()
             elif 'ano_mes_sinistro' in row and pd.notna(row['ano_mes_sinistro']):
                 ano = str(row['ano_mes_sinistro'])[:4]
             # Veículos
@@ -118,8 +167,9 @@ try:
                 custo = 25000
                 
             dados_json.append({
-                "latitude": lat,
-                "longitude": lon,
+                "id": str(row[NOME_COLUNA_ID]),
+                "latitude": round(lat, 6),
+                "longitude": round(lon, 6),
                 "ano": ano,
                 "gravidade": gravidade,
                 "custo_social": custo,

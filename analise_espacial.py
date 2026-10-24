@@ -26,8 +26,8 @@ def calcular_peso(gravidade):
 
 df['peso'] = df['gravidade'].apply(calcular_peso)
 
-# O período oficial do projeto para pontos críticos é de 5 anos (2022-2026) 
-# conforme recomendação internacional (HSM) para evitar regressão à média.
+# O período oficial do projeto para pontos críticos compreende Jan/2022 a Ago/2026 (4 anos e 8 meses)
+# conforme recomendação internacional do Highway Safety Manual (HSM: janela típica de 3 a 5 anos).
 cenarios = ['2022-2026']
 poligonos = []
 
@@ -45,7 +45,7 @@ for cenario in cenarios:
     raio_metros = 50
     epsilon = raio_metros / 6371000.0
     
-    # Exige 20 pontos para considerar cluster (período de 5 anos)
+    # Exige 20 pontos ponderados acumulados no período (~4,25 pontos/ano)
     min_pts_cenario = 20
     
     db = DBSCAN(eps=epsilon, min_samples=min_pts_cenario, metric='haversine', algorithm='ball_tree')

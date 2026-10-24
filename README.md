@@ -1,4 +1,4 @@
-# Plataforma de Mapeamento e Análise Espacial de Acidentes de Trânsito
+# Mineração de Dados Espaciais para Segurança Viária
 
 > **Trabalho de Conclusão de Curso (TCC)**  
 > **Estudo de Caso:** Município de Franca – SP (2022–2026)  
@@ -19,31 +19,45 @@ O projeto é composto por:
 
 ---
 
+## 🛡️ Auditoria Espacial e Limpeza de Dados (Data Cleaning)
+
+As bases de dados abertos do **Infosiga SP** consolidam informações textuais de Boletins de Ocorrência da Polícia Civil e Militar. Em análises espaciais aplicadas à segurança pública, há um desafio metodológico crítico conhecido como **imprecisão de centróide por contingência** (*fallback geocoding* e *point stacking*):
+
+1. **Origem do Problema:** Quando o registro policial não contém o número predial exato da via, refere-se a trechos de rodovias sem quilometragem precisa ou decorre de estradas rurais, os motores automatizados de geocodificação não conseguem posicionar o evento no ponto exato da pista. Por regra de contingência, o sistema atribui o acidente às coordenadas centrais (centróide) do CEP ou bairro.
+2. **O Risco de Falsos Positivos:** Esse mecanismo provoca o "empilhamento artificial" de ocorrências em uma única coordenada geográfica. Em Franca, identificou-se um ponto na zona sul (Jardim Aeroporto IV) reunindo 128 acidentes; entretanto, a auditoria dos dados revelou **108 logradouros distintos** (incluindo rodovias e avenidas em outros extremos da cidade). Sem uma limpeza rigorosa, algoritmos por densidade como o DBSCAN interpretariam esse ponto artificial como uma zona de risco com altíssimo custo social.
+3. **Regra de Detecção Algorítmica:** O pipeline (`processador.py`) implementou uma verificação de consistência entre ruas e coordenadas:
+   * **Em cruzamentos reais:** Mesmo com dezenas de acidentes, os boletins registram apenas as 2 ou 3 vias que formam aquela esquina.
+   * **Em centróides com erro:** O sistema acumula dezenas de acidentes no mesmo ponto, mas com nomes de ruas completamente divergentes.
+   * **Critério de eliminação:** Coordenadas com 8 ou mais acidentes onde metade ou mais (50%+) dos registros trazem nomes de ruas diferentes são identificadas como erros de localização e descartadas.
+4. **Resultado da Limpeza:** Foram removidas 11 coordenadas inconsistentes que concentravam 691 registros com localização imprecisa, preservando **9.259 sinistros espaciais fidedignos** para a modelagem do DBSCAN.
+
+---
+
 ## 🔬 Resultados e Comparativo de Métodos de Agrupamento Espacial
 
 A avaliação comparativa foi processada no sistema de coordenadas métricas oficial brasileiro (**SIRGAS 2000 / UTM zone 23S - EPSG:31983**), comparando o modelo proposto com o modelo geométrico particional (**K-Means**):
 
-| Critério Avaliado | Modelo DBSCAN | Modelo K-Means | Divisão por Bairros |
+| Critério Avaliado | Modelo DBSCAN | Modelo K-Means (Controle) | Divisão por Bairros |
 | :--- | :---: | :---: | :---: |
-| **Acidentes com Vítimas/Óbitos** | **35,04%** | 35,04% *(pareado)* | ~40% a 50% |
-| **Área Ocupada em Franca** | **0,98 km²** | 59,68 km² | ~60 a 70 km² |
-| **Porcentagem do Município** | **0,16% de Franca** | 9,86% de Franca | ~45% da malha urbana |
-| **Razão de Área** | **1x (Referência)** | **60,96x maior** | > 65x maior |
-| **Ocorrências Isoladas** | Classificadas como ruído | Forçadas ao grupo mais próximo | Somadas ao total do bairro |
-| **Nível de Detalhe** | **Local (cruzamento ou trecho)** | Regional (área ampla) | Setorial (bairro inteiro) |
+| **Sinistros com Vítimas Concentrados** | **31,56% (1.817 de 5.757)** | 31,56% *(pareado)* | ~40% a 50% |
+| **Área Ocupada em Franca** | **0,95 km²** | 62,79 km² | ~60 a 70 km² |
+| **Ocupação Territorial Municipal** | **0,16% de Franca** | 10,37% de Franca | ~45% da malha urbana |
+| **Razão de Área** | **1x (Referência)** | **65,94x maior que o DBSCAN** | > 70x maior |
+| **Tratamento de Pontos Isolados** | Classificados como ruído | Forçados ao cluster mais próximo | Somados ao total do bairro |
+| **Escala de Delimitação** | **Cruzamentos e trechos viários** | Regional (área ampla) | Setorial (bairro inteiro) |
 
-> **Síntese dos Resultados**: As 111 áreas de risco identificadas concentram **35,04% dos acidentes com vítimas e óbitos** de Franca em **0,16% do território do município (0,98 km² de 605,60 km²)**, enquanto o modelo particional K-Means delimitou **59,68 km² (9,86% do território)** para cobrir a mesma proporção de ocorrências.
+> **Síntese dos Resultados**: As 107 áreas de risco delimitadas pelo **DBSCAN** concentram **31,56% dos acidentes com vítimas e óbitos** (1.817 de 5.757 ocorrências) em **0,95 km² de área territorial** (0,16% do município). Em comparação, o modelo de controle **K-Means** demandou **62,79 km² (uma área 65,94 vezes maior)** para abranger a mesma proporção de sinistros graves. Sob a perspectiva de aplicação prática, esses resultados indicam que o poder público pode atuar em 0,95 km² da malha viária para abranger quase um terço de todas as ocorrências com feridos e óbitos em Franca.
 
 ---
 
 ## 🛠️ Como Testar e Reproduzir os Resultados no Terminal
 
-Para conferência dos cálculos, as rotinas matemáticas podem ser executadas diretamente via terminal:
+Para conferência dos cálculos, as rotinas matemáticas podem ser executadas diretamente via terminal (no VS Code, pressione **`Ctrl + '`** ou acesse o menu **Terminal > Novo Terminal**):
 
 ### 1. Clonar o repositório
 ```bash
-git clone https://github.com/ematsant/PrevencaoAcidentesFranca.git
-cd PrevencaoAcidentesFranca
+git clone https://github.com/ematsant/tcc-mapa-acidentes.git
+cd tcc-mapa-acidentes
 ```
 
 ### 2. Configurar o ambiente Python
@@ -56,51 +70,90 @@ source venv/bin/activate  # No Windows: venv\Scripts\activate
 pip install -r requirements.txt
 ```
 
-### 3. Executar o teste dos dados
+### 3. Executar o pipeline e os testes de dados
 ```bash
+# Etapa 1: Executar o ETL com Auditoria Espacial
+python processador.py
+
+# Etapa 2: Gerar os Polígonos de Risco (DBSCAN)
+python analise_espacial.py
+
+# Etapa 3: Executar a Auditoria Métrica Comparativa (SIRGAS 2000 UTM 23S)
 python calcula_metricas_area.py
 ```
 
 ### Saída gerada no terminal:
 ```text
 Processando dados espaciais de Franca - SP...
-======================================================================
-RELATÓRIO DE AVALIAÇÃO ESPACIAL E RESULTADOS (TCC)
-Município: Franca - SP | Projeção: SIRGAS 2000 / UTM 23S (EPSG:31983)
-======================================================================
+================================================================================
+AVALIAÇÃO ESPACIAL DE ACIDENTES — MUNICÍPIO DE FRANCA/SP
+Período: Jan/2022 a Ago/2026 (4 anos e 8 meses) | Sistema: SIRGAS 2000 (UTM 23S)
+================================================================================
 
-1. MODELO DBSCAN (Agrupamento por Densidade):
-   • Acidentes com Vítimas e Óbitos: 35.04%
-   • Área Total Delimitada: 0.98 km²
-   • Ocupação Territorial: 0.16% de Franca (total de 605.6 km²)
+1. BASE DE DADOS AUDITADA:
+   • Total de acidentes válidos: 9.259 ocorrências (após limpeza de centróides)
+   • Acidentes com vítimas (feridos e óbitos): 5.757 ocorrências (62.2% da base)
+   • Escopo da modelagem: Identificar as áreas de maior concentração desses
+     eventos com vítimas no município.
 
-2. MODELO K-MEANS (Controle Particional):
-   • Quantidade de Grupos Pareada: 111
-   • Área Total Delimitada: 59.68 km²
-   • Ocupação Territorial: 9.86% de Franca
+--------------------------------------------------------------------------------
+2. RESULTADOS DO MODELO PROPOSTO (DBSCAN — Agrupamento por Densidade):
+--------------------------------------------------------------------------------
+   • Zonas de risco delimitadas: 107 áreas (cruzamentos e trechos viários)
+   • Área total delimitada: 0.95 km² (0.16% do território de Franca)
+   • Cobertura de eventos graves: 1.817 ocorrências com vítimas (feridos e óbitos)
+   • Proporção observada: As áreas concentram 31.56% dos acidentes com vítimas
+     do município (1.817 de 5.757 com feridos e óbitos) em 0.95 km².
 
-3. COMPARAÇÃO DOS RESULTADOS:
-   • Razão de Área: O K-Means ocupou uma área 60.96 vezes maior que o DBSCAN.
-   • Síntese: As 111 áreas de risco concentram 35.04% dos acidentes com vítimas e óbitos
-     em 0.16% do território de Franca (0.98 km² de 605.6 km²).
-======================================================================
+--------------------------------------------------------------------------------
+3. COMPARAÇÃO COM O K-MEANS (Grupo de Controle Comparativo):
+--------------------------------------------------------------------------------
+   • Quantidade de grupos pareada: K = 107 regiões equivalentes
+   • Área delimitada pelo K-Means: 62.79 km² (10.37% do território municipal)
+   • Razão de área: A área delimitada pelo K-Means foi 65.94 vezes maior
+     que a área delimitada pelo DBSCAN para cobrir a mesma proporção de sinistros.
+   • Diferença metodológica: O K-Means divide o espaço em polígonos convexos
+     amplos que abrangem vazios urbanos; o DBSCAN contorna os pontos densos
+     ao longo das vias e classifica as ocorrências isoladas como ruído.
+
+--------------------------------------------------------------------------------
+4. SÍNTESE COMPARATIVA E APLICAÇÃO:
+--------------------------------------------------------------------------------
+   • O modelo baseado em densidade (DBSCAN) delimitou 0.95 km² para concentrar
+     31.56% dos acidentes com vítimas (feridos e óbitos), enquanto o modelo
+     particional (K-Means) demandou 62.79 km² para cobrir o mesmo volume.
+   • Sob a perspectiva de aplicação prática, esses resultados indicam que o
+     poder público pode atuar em 0.95 km² da malha viária para abranger
+     quase um terço de todas as ocorrências com feridos e óbitos em Franca.
+================================================================================
 ```
 
 ---
 
-## 💻 Executando a Aplicação Web Localmente
+## 💻 Executando e Visualizando a Aplicação Web Localmente (com foco no VS Code)
 
-A aplicação web é uma **Single Page Application (SPA)** estática que não depende de servidores de backend ou banco de dados relacional. Para executá-la em seu computador:
+A aplicação web é uma **Single Page Application (SPA)** estática que não depende de servidores de backend ou banco de dados relacional. Como os mapas consomem arquivos `.json` e `.geojson`, os navegadores exigem que a página seja servida por um protocolo HTTP local (evitando restrições de CORS que ocorrem ao abrir arquivos diretamente como `file://`).
 
-```bash
-# Iniciar um servidor estático simples com Python
-python3 -m http.server 8000
-```
+### Opção A: Via Terminal Integrado do VS Code (Recomendado)
+1. No VS Code, abra o terminal integrado com o atalho: **`Ctrl + '`** (ou menu **Terminal > Novo Terminal**).
+2. Inicie o servidor estático nativo do Python:
+   ```bash
+   python3 -m http.server 8000
+   ```
+3. Abra o navegador e acesse as páginas:
+   * **Mapa Interativo Principal:** [http://localhost:8000/index.html](http://localhost:8000/index.html)  
+     *(Contém filtros dinâmicos de ano, gravidade, turno, exportação CSV e visualização das 107 zonas de risco).*
+   * **Página de Metodologia e Resultados:** [http://localhost:8000/metodologia.html](http://localhost:8000/metodologia.html)  
+     *(Detalhamento da auditoria de centróides, KPIs comparativos com o K-Means e card de terminal).*
 
-Abra o navegador no endereço: **`http://localhost:8000`**
+### Opção B: Via Extensão Live Server do VS Code
+Se você utiliza a extensão **Live Server** (Ritwick Dey):
+1. Clique com o botão direito sobre `index.html` ou `metodologia.html` na barra lateral esquerda de arquivos do VS Code.
+2. Selecione a opção **"Open with Live Server"**. O navegador padrão abrirá a aplicação automaticamente.
 
-* **`index.html`**: Mapa interativo com filtros de ano, gravidade, turno, veículos, exportação em CSV e alternador de tema claro/escuro.
-* **`metodologia.html`**: Página exclusiva detalhando a metodologia, indicadores científicos e auditoria.
+### 💡 Visualização Formatada do README no VS Code
+Para visualizar este documento renderizado com formatação visual e tabelas:
+* Abra o arquivo `README.md` no VS Code e pressione **`Ctrl + Shift + V`** (ou clique no ícone de *Preview* no canto superior direito do editor).
 
 ---
 
@@ -112,13 +165,13 @@ Abra o navegador no endereço: **`http://localhost:8000`**
 ├── style.css                  # Folha de estilos completa (Glassmorphism e temas claro/escuro)
 ├── script.js                  # Lógica interativa da aplicação (Leaflet, filtros e gráficos)
 │
-├── dados_acidentes.json       # Base consolidada de 9.950 sinistros em Franca/SP (2022-2026)
-├── hotspots.geojson           # Geometrias dos 111 polígonos de risco delimitados (DBSCAN)
-├── etl_metrics.json           # Métricas computacionais do processo de ETL
+├── dados_acidentes.json       # Base consolidada de 9.259 sinistros auditados em Franca/SP (2022-2026)
+├── hotspots.geojson           # Geometrias dos 107 polígonos de risco delimitados (DBSCAN)
+├── etl_metrics.json           # Métricas computacionais e log de auditoria de dados espaciais
 │
 ├── calcula_metricas_area.py   # Script de auditoria métrica e validação científica do benchmark
 ├── analise_espacial.py        # Algoritmo DBSCAN que gera os polígonos de risco
-├── processador.py             # Script de extração e tratamento dos dados do Infosiga SP
+├── processador.py             # Script de extração, auditoria espacial e tratamento dos dados do Infosiga
 │
 ├── requirements.txt           # Dependências Python (pandas, geopandas, shapely, scikit-learn)
 ├── .gitignore                 # Regras de exclusão do Git (ignora dados brutos > 100MB e venv)
@@ -133,4 +186,5 @@ Abra o navegador no endereço: **`http://localhost:8000`**
 * **IPEA – INSTITUTO DE PESQUISA ECONÔMICA APLICADA.** *Custos dos acidentes de trânsito no Brasil: estimativas atualizadas.* Brasília: Ipea, 2020.
 * **SÃO PAULO (Estado).** *Sistema de Informações Gerenciais de Acidentes de Trânsito do Estado de São Paulo - Infosiga SP.* Secretaria de Logística e Transportes do Estado de São Paulo, 2026.
 * **TRANSPORTATION RESEARCH BOARD.** *Highway Safety Manual (HSM).* Washington, D.C.: AASHTO, 2010.
+* **VITAL STRATEGIES.** *Guia de Geocodificação e Gestão de Dados de Segurança Viária.* Parceria por Cidades Saudáveis, 2021.
 * **WAZLAWICK, Raul Sidnei.** *Metodologia de Pesquisa para Ciência da Computação.* 2. ed. Rio de Janeiro: Elsevier, 2014.

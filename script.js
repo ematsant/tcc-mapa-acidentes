@@ -1,5 +1,5 @@
 /* =========================================================
-   Mapa de Acidentes – Franca, SP | TCC
+   Mineração de Dados Espaciais para Segurança Viária | TCC
    script.js – Lógica principal: mapa, filtros, gráfico, tema
    ========================================================= */
 

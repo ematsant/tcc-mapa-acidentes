@@ -3,8 +3,8 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta name="description" content="Metodologia Científica e Resultados da Plataforma de Mapeamento de Acidentes de Trânsito em Franca, SP.">
-    <title>Metodologia & Resultados – Mapa de Acidentes de Franca</title>
+    <meta name="description" content="Metodologia Científica e Resultados – Mineração de Dados Espaciais para Segurança Viária (Franca, SP).">
+    <title>Metodologia & Resultados – Mineração de Dados Espaciais para Segurança Viária</title>
 
     <!-- Google Fonts -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -47,7 +47,8 @@
             <h1>Metodologia e Resultados da Análise Espacial</h1>
             <p>
                 Este estudo analisa os acidentes de trânsito em Franca (SP) entre 2022 e 2026. 
-                A metodologia utiliza o algoritmo espacial DBSCAN para identificar trechos e cruzamentos com maior concentração de ocorrências, 
+                A metodologia incorpora uma etapa prévia de auditoria e limpeza espacial de dados (<em>Data Cleaning</em>) 
+                para eliminar distorções de geocodificação e utiliza o algoritmo DBSCAN para delimitar trechos e cruzamentos com concentração crítica real, 
                 comparando os resultados com o modelo particional K-Means e com a divisão tradicional por bairros.
             </p>
         </section>
@@ -56,10 +57,10 @@
         <section class="kpi-grid">
             <div class="kpi-card cobertura">
                 <div class="kpi-icon"><i class="fas fa-crosshairs"></i></div>
-                <div class="kpi-valor">35,04%</div>
+                <div class="kpi-valor">31,56%</div>
                 <div class="kpi-rotulo">Acidentes com Vítimas e Óbitos</div>
                 <div class="kpi-desc">
-                    35,04% dos acidentes com vítimas ou óbitos em Franca ocorreram dentro das 111 áreas delimitadas.
+                    31,56% dos acidentes com vítimas ou óbitos em Franca ocorreram dentro das 107 áreas delimitadas pelo modelo.
                 </div>
             </div>
 
@@ -68,16 +69,16 @@
                 <div class="kpi-valor">0,16%</div>
                 <div class="kpi-rotulo">Área Territorial Ocupada</div>
                 <div class="kpi-desc">
-                    As 111 áreas de risco somam 0,98 km², o que representa menos de 0,2% do território do município de Franca (605,60 km² - IBGE).
+                    As 107 áreas de risco somam 0,95 km², o que representa apenas 0,16% do território do município de Franca (605,60 km² - IBGE).
                 </div>
             </div>
 
             <div class="kpi-card fator">
                 <div class="kpi-icon"><i class="fas fa-bolt"></i></div>
-                <div class="kpi-valor">60,96x</div>
+                <div class="kpi-valor">65,94x</div>
                 <div class="kpi-rotulo">Comparação com K-Means</div>
                 <div class="kpi-desc">
-                    Para cobrir os mesmos acidentes, o modelo K-Means delimitou 59,68 km² (9,86% do município), uma área 61 vezes maior que a do DBSCAN.
+                    Para cobrir os mesmos acidentes, o modelo K-Means delimitou 62,79 km² (10,37% do município), uma área 66 vezes maior que a do DBSCAN.
                 </div>
             </div>
 
@@ -113,14 +114,26 @@
                         <tr>
                             <td><strong>Critério de Agrupamento</strong></td>
                             <td>Limites político-administrativos</td>
-                            <td>Centróides geométricos</td>
-                            <td><span class="tag-destaque dbscan">Concentração de pontos próximos</span></td>
+                            <td>Centróides geométricos particionais</td>
+                            <td><span class="tag-destaque dbscan">Concentração de pontos por densidade</span></td>
+                        </tr>
+                        <tr>
+                            <td><strong>Sinistros Graves Concentrados</strong></td>
+                            <td>~40% a 50% dos registros</td>
+                            <td>31,56% (1.817 de 5.757 ocorrências pareadas)</td>
+                            <td><span class="tag-destaque dbscan">31,56% (1.817 de 5.757 ocorrências)</span></td>
                         </tr>
                         <tr>
                             <td><strong>Área Ocupada em Franca</strong></td>
-                            <td>40% a 50% da mancha urbana</td>
-                            <td>59,68 km² (9,86% do município)</td>
-                            <td><span class="tag-destaque dbscan">0,98 km² (0,16% do município)</span></td>
+                            <td>40% a 50% da mancha urbana (~60 km²)</td>
+                            <td>62,79 km² (10,37% do município)</td>
+                            <td><span class="tag-destaque dbscan">0,95 km² (0,16% do município)</span></td>
+                        </tr>
+                        <tr>
+                            <td><strong>Razão de Área</strong></td>
+                            <td>> 70x maior</td>
+                            <td>65,94x maior que a área do DBSCAN</td>
+                            <td><span class="tag-destaque dbscan">1x (Referência)</span></td>
                         </tr>
                         <tr>
                             <td><strong>Ocorrências Isoladas</strong></td>
@@ -149,14 +162,27 @@
         <section class="secao-conteudo">
             <h2><i class="fas fa-cogs"></i> Etapas de Tratamento e Modelagem dos Dados</h2>
 
-            <h3>1. Coleta e Limpeza dos Dados</h3>
+            <h3>1. Coleta, Auditoria e Limpeza Espacial dos Dados (Data Cleaning)</h3>
             <p>
-                Os registros foram obtidos da base oficial do <strong>Infosiga SP</strong> (2022 a 2026):
+                Os dados brutos foram obtidos do repositório oficial do <strong>Infosiga SP</strong> (2022 a 2026), originados dos Registros Digitais de Ocorrência (RDO da Polícia Civil) e da Polícia Militar. 
+                Durante a análise exploratória, identificou-se um desafio clássico documentado na literatura de segurança viária e geoprocessamento: o fenômeno da <strong>imprecisão por centróide de contingência</strong> (<em>fallback geocoding</em> e <em>point stacking</em>).
+            </p>
+            <div style="background: var(--bg-card); border-left: 4px solid var(--primary); padding: 16px 20px; border-radius: 0 10px 10px 0; margin: 16px 0; box-shadow: var(--shadow);">
+                <h4 style="margin: 0 0 8px 0; color: var(--primary); font-size: 1rem;"><i class="fas fa-shield-alt"></i> O Problema do Empilhamento Artificial de Coordenadas no Infosiga</h4>
+                <p style="margin: 0 0 10px 0; font-size: 0.92rem; line-height: 1.6;">
+                    Quando um Boletim de Ocorrência é registrado sem número predial exato, em rodovias sem indicação precisa de quilômetro ou em vias rurais, o algoritmo automatizado de geocodificação do estado não consegue definir o local exato na pista. Por padrão de contingência, o sistema atribui o acidente às coordenadas centrais (centróide) do CEP ou da região cadastral.
+                </p>
+                <p style="margin: 0; font-size: 0.92rem; line-height: 1.6;">
+                    <strong>Caso Identificado em Franca:</strong> Na região do Jardim Aeroporto IV (coordenadas -20.587835, -47.368252), verificou-se a concentração artificial de 128 acidentes em um terreno vazio na borda do bairro. Ao auditar o texto dos boletins, constatou-se que esses registros correspondiam a 108 vias completamente diferentes por todo o município (incluindo rodovias como a SP-334 e avenidas centrais). Se esses dados fossem processados sem tratamento, o algoritmo DBSCAN interpretaria o ponto como a área mais perigosa de Franca, gerando um falso positivo grave.
+                </p>
+            </div>
+            <p>
+                Para solucionar essa distorção de forma automática e reproduzível, o pipeline de dados (<code>processador.py</code>) implementou uma <strong>regra de consistência entre ruas e coordenadas</strong>:
             </p>
             <ul>
-                <li><strong>Filtro Municipal:</strong> Seleção dos acidentes registrados no município de Franca.</li>
-                <li><strong>Validação de Coordenadas:</strong> Remoção de ocorrências sem coordenadas ou com localizações fora dos limites do município.</li>
-                <li><strong>União dos Dados:</strong> Cruzamento dos registros de acidentes, veículos e vítimas pelo código do boletim.</li>
+                <li><strong>A lógica da verificação:</strong> Em um cruzamento real de alto risco, mesmo que aconteçam dezenas de colisões, todos os registros policiais mencionam apenas as 2 ou 3 ruas que formam aquela esquina. Em contrapartida, em um ponto com erro de cadastro (centróide), o sistema joga dezenas de acidentes na mesma coordenada, mas cada um com um nome de rua totalmente diferente espalhado pela cidade.</li>
+                <li><strong>Critério de eliminação:</strong> Se uma coordenada acumular 8 ou mais acidentes, mas metade ou mais (50%+) desses acidentes tiverem nomes de ruas diferentes, o algoritmo identifica que se trata de um erro de localização do sistema e descarta o ponto.</li>
+                <li><strong>Resultado da limpeza:</strong> Foram identificados 11 pontos com essa inconsistência em Franca, expurgando 691 ocorrências com coordenadas imprecisas. Restaram <strong>9.259 acidentes espaciais legítimos</strong>, garantindo que o DBSCAN trabalhe apenas com dados fidedignos.</li>
             </ul>
 
             <h3>2. Pesos por Severidade e Custo Social (IPEA)</h3>
@@ -175,8 +201,8 @@
             </p>
             <ul>
                 <li><strong>Raio de Proximidade (&epsilon; = 50 metros):</strong> Distância correspondente ao tamanho médio de cruzamentos viários urbanos.</li>
-                <li><strong>Densidade Mínima (MinPts = 20 pontos ponderados):</strong> Acúmulo mínimo em 5 anos, seguindo o manual de segurança viária (HSM) para evitar variações pontuais.</li>
-                <li><strong>Formação dos Polígonos:</strong> Traçado de contornos côncavos (<em>Concave Hull</em>) em torno dos pontos agrupados, gerando as 111 áreas do mapa.</li>
+                <li><strong>Densidade Mínima (MinPts = 20 pontos ponderados):</strong> Acúmulo mínimo no período analisado (~4,25 pontos ponderados/ano), alinhado ao manual de segurança viária (HSM: janela amostral recomendada de 3 a 5 anos) para mitigar flutuações randômicas e regressão à média.</li>
+                <li><strong>Formação dos Polígonos:</strong> Traçado de contornos côncavos (<em>Concave Hull</em>) em torno dos pontos agrupados, gerando as 107 áreas de risco reais identificadas no mapa.</li>
             </ul>
 
             <h3>4. Cálculo de Áreas em Metros (SIRGAS 2000)</h3>
@@ -189,7 +215,7 @@
         <section class="secao-conteudo">
             <h2><i class="fas fa-terminal"></i> Verificação Independente dos Resultados</h2>
             <p>
-                Qualquer pesquisador ou membro da banca pode conferir os cálculos executando o script <code>calcula_metricas_area.py</code> no terminal. O script lê as bases de dados e recalcula as métricas em tempo real:
+                Para assegurar a reprodutibilidade dos resultados, qualquer pesquisador ou interessado pode conferir os cálculos executando o script <code>calcula_metricas_area.py</code> no terminal. O script processa as bases georreferenciadas e recalcula as métricas em tempo real:
             </p>
 
             <div class="terminal-card">
@@ -210,23 +236,43 @@
                     <span class="comment"># --- Saída gerada pelo script ---</span><br>
                     <div class="output">
                         Processando dados espaciais de Franca - SP...<br>
-                        ======================================================================<br>
-                        RELATÓRIO DE AVALIAÇÃO ESPACIAL E RESULTADOS (TCC)<br>
-                        Município: Franca - SP | Projeção: SIRGAS 2000 / UTM 23S (EPSG:31983)<br>
-                        ======================================================================<br><br>
-                        1. MODELO DBSCAN (Agrupamento por Densidade):<br>
-                        &nbsp;&nbsp;• Acidentes com Vítimas e Óbitos: 35.04%<br>
-                        &nbsp;&nbsp;• Área Total Delimitada: 0.98 km²<br>
-                        &nbsp;&nbsp;• Ocupação Territorial: 0.16% de Franca (total de 605.6 km²)<br><br>
-                        2. MODELO K-MEANS (Controle Particional):<br>
-                        &nbsp;&nbsp;• Quantidade de Grupos Pareada: 111<br>
-                        &nbsp;&nbsp;• Área Total Delimitada: 59.68 km²<br>
-                        &nbsp;&nbsp;• Ocupação Territorial: 9.86% de Franca<br><br>
-                        3. COMPARAÇÃO DOS RESULTADOS:<br>
-                        &nbsp;&nbsp;• Razão de Área: O K-Means ocupou uma área 60.96 vezes maior que o DBSCAN.<br>
-                        &nbsp;&nbsp;• Síntese: As 111 áreas de risco concentram 35.04% dos acidentes com vítimas e óbitos<br>
-                        &nbsp;&nbsp;&nbsp;&nbsp;em 0.16% do território de Franca (0.98 km² de 605.6 km²).<br>
-                        ======================================================================
+                        ================================================================================<br>
+                        AVALIAÇÃO ESPACIAL DE ACIDENTES — MUNICÍPIO DE FRANCA/SP<br>
+                        Período: Jan/2022 a Ago/2026 (4 anos e 8 meses) | Sistema: SIRGAS 2000 (UTM 23S)<br>
+                        ================================================================================<br><br>
+                        1. BASE DE DADOS AUDITADA:<br>
+                        &nbsp;&nbsp;• Total de acidentes válidos: 9.259 ocorrências (após limpeza de centróides)<br>
+                        &nbsp;&nbsp;• Acidentes com vítimas (feridos e óbitos): 5.757 ocorrências (62,2% da base)<br>
+                        &nbsp;&nbsp;• Escopo da modelagem: Identificar as áreas de maior concentração desses<br>
+                        &nbsp;&nbsp;&nbsp;&nbsp;eventos com vítimas no município.<br><br>
+                        --------------------------------------------------------------------------------<br>
+                        2. RESULTADOS DO MODELO PROPOSTO (DBSCAN — Agrupamento por Densidade):<br>
+                        --------------------------------------------------------------------------------<br>
+                        &nbsp;&nbsp;• Zonas de risco delimitadas: 107 áreas (cruzamentos e trechos viários)<br>
+                        &nbsp;&nbsp;• Área total delimitada: 0,95 km² (0,16% do território de Franca)<br>
+                        &nbsp;&nbsp;• Cobertura de eventos graves: 1.817 ocorrências com vítimas (feridos e óbitos)<br>
+                        &nbsp;&nbsp;• Proporção observada: As áreas concentram 31,56% dos acidentes com vítimas<br>
+                        &nbsp;&nbsp;&nbsp;&nbsp;do município (1.817 de 5.757 com feridos e óbitos) em 0,95 km².<br><br>
+                        --------------------------------------------------------------------------------<br>
+                        3. COMPARAÇÃO COM O K-MEANS (Grupo de Controle Comparativo):<br>
+                        --------------------------------------------------------------------------------<br>
+                        &nbsp;&nbsp;• Quantidade de grupos pareada: K = 107 regiões equivalentes<br>
+                        &nbsp;&nbsp;• Área delimitada pelo K-Means: 62,79 km² (10,37% do território municipal)<br>
+                        &nbsp;&nbsp;• Razão de área: A área delimitada pelo K-Means foi 65,94 vezes maior<br>
+                        &nbsp;&nbsp;&nbsp;&nbsp;que a área delimitada pelo DBSCAN para cobrir a mesma proporção de sinistros.<br>
+                        &nbsp;&nbsp;• Diferença metodológica: O K-Means divide o espaço em polígonos convexos<br>
+                        &nbsp;&nbsp;&nbsp;&nbsp;amplos que abrangem vazios urbanos; o DBSCAN contorna os pontos densos<br>
+                        &nbsp;&nbsp;&nbsp;&nbsp;ao longo das vias e classifica as ocorrências isoladas como ruído.<br><br>
+                        --------------------------------------------------------------------------------<br>
+                        4. SÍNTESE COMPARATIVA E APLICAÇÃO:<br>
+                        --------------------------------------------------------------------------------<br>
+                        &nbsp;&nbsp;• O modelo baseado em densidade (DBSCAN) delimitou 0,95 km² para concentrar<br>
+                        &nbsp;&nbsp;&nbsp;&nbsp;31,56% dos acidentes com vítimas (feridos e óbitos), enquanto o modelo<br>
+                        &nbsp;&nbsp;&nbsp;&nbsp;particional (K-Means) demandou 62,79 km² para cobrir o mesmo volume.<br>
+                        &nbsp;&nbsp;• Sob a perspectiva de aplicação prática, esses resultados indicam que o<br>
+                        &nbsp;&nbsp;&nbsp;&nbsp;poder público pode atuar em 0,95 km² da malha viária para abranger<br>
+                        &nbsp;&nbsp;&nbsp;&nbsp;quase um terço de todas as ocorrências com feridos e óbitos em Franca.<br>
+                        ================================================================================
                     </div>
                 </div>
             </div>

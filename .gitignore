@@ -1,9 +1,14 @@
 # Ambientes virtuais Python
 venv/
 venv_tcc/
-.env/
+.venv/
 env/
 ENV/
+.env/
+
+# Arquivos de ambiente e variáveis secretas
+.env
+.env.*
 
 # Cache e arquivos compilados Python
 __pycache__/
@@ -11,13 +16,23 @@ __pycache__/
 *$py.class
 *.so
 .pytest_cache/
+.ipynb_checkpoints/
 
-# Dados brutos volumosos (>100MB)
+# Dados brutos volumosos e planilhas
 data/
 *.csv
+*.xlsx
+*.xls
+*.parquet
+*.zip
+*.tar.gz
+*.tar
+*.rar
 
-# Logs e arquivos de sistema
+# Logs, temporários e arquivos de sistema
 *.log
+*.tmp
+*.bak
 .DS_Store
 Thumbs.db
 
