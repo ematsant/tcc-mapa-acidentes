@@ -6,8 +6,17 @@
 // ── Configuração Inicial do Mapa ──────────────────────────
 const FRANCA_COORDS = [-20.5383, -47.4008];
 const ZOOM_INICIAL  = 13;
+const FRANCA_BOUNDS = [
+    [-20.80, -47.65], // Sudoeste
+    [-20.35, -47.15]  // Nordeste
+];
 
-const mapa = L.map('mapa', { zoomControl: false }).setView(FRANCA_COORDS, ZOOM_INICIAL);
+const mapa = L.map('mapa', {
+    zoomControl: false,
+    minZoom: 11,
+    maxBounds: FRANCA_BOUNDS,
+    maxBoundsViscosity: 1.0
+}).setView(FRANCA_COORDS, ZOOM_INICIAL);
 L.control.zoom({ position: 'bottomright' }).addTo(mapa);
 
 // ── Tile Layers (claro e escuro) ─────────────────────────
@@ -450,6 +459,7 @@ document.getElementById('btn-limpar-filtros').addEventListener('click', () => {
     usandoMapaDeCalor = false;
     mostrandoHotspots = false;
     
+    mapa.setView(FRANCA_COORDS, ZOOM_INICIAL);
     aplicarFiltros();
 });
 
