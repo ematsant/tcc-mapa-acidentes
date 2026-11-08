@@ -230,6 +230,13 @@ function aplicarFiltros() {
     renderizarGrafico(filtrados);
 }
 
+function formatarTurno(t) {
+    const mapa = { 'MANHA': 'Manhã', 'TARDE': 'Tarde', 'NOITE': 'Noite', 'MADRUGADA': 'Madrugada' };
+    if (!t) return 'Não informado';
+    const k = String(t).toUpperCase();
+    return mapa[k] || (k.charAt(0) + k.slice(1).toLowerCase());
+}
+
 function atualizarContadorECusto(filtrados) {
     document.getElementById('contador').innerHTML = `<i class="fas fa-map-marker-alt" style="color: var(--primary);"></i> <b>${filtrados.length.toLocaleString('pt-BR')}</b> acidentes exibidos`;
     
@@ -396,7 +403,8 @@ function atualizarMapa(dados) {
 
                             <!-- Perfil de Modais -->
                             <div>
-                                <div style="font-size:10px;font-weight:700;color:${isDark ? '#9da3b4' : '#6c757d'};text-transform:uppercase;margin-bottom:3px;letter-spacing:0.5px;">Perfil dos Veículos Envolvidos</div>
+                                <div style="font-size:10px;font-weight:700;color:${isDark ? '#9da3b4' : '#6c757d'};text-transform:uppercase;margin-bottom:3px;letter-spacing:0.5px;">Veículos Envolvidos nos Acidentes</div>
+                                <div style="font-size:10px;color:${isDark ? '#9da3b4' : '#6c757d'};margin-bottom:4px;line-height:1.3;">% dos acidentes da zona com cada tipo de veículo (um acidente pode envolver mais de um)</div>
                                 <div style="display:flex;gap:6px;flex-wrap:wrap;">
                                     <div style="flex:1;min-width:60px;background:${cardBg};border:1px solid ${borderCol};border-radius:6px;padding:5px 4px;text-align:center;">
                                         <div style="font-size:11px;color:${isDark ? '#f5d98a' : '#b7770d'};font-weight:600;"><i class="fas fa-motorcycle"></i> Motos</div>
@@ -419,10 +427,13 @@ function atualizarMapa(dados) {
                                 </div>
                             </div>
 
-                            <!-- Padrão Temporal Crítico -->
-                            <div style="font-size:11px;color:${popupText};background:${cardBg};border:1px solid ${borderCol};border-radius:6px;padding:6px 8px;display:flex;justify-content:space-between;">
-                                <span><b style="color:${popupBold}"><i class="fas fa-clock"></i> Turno:</b> ${props.turno_critico || 'N/A'}</span>
-                                <span><b style="color:${popupBold}"><i class="fas fa-calendar-day"></i> Dia:</b> ${props.dia_critico || 'N/A'}</span>
+                            <!-- Padrão Temporal: turno e dia com mais acidentes -->
+                            <div>
+                                <div style="font-size:10px;font-weight:700;color:${isDark ? '#9da3b4' : '#6c757d'};text-transform:uppercase;margin-bottom:3px;letter-spacing:0.5px;">Quando mais acontecem acidentes aqui</div>
+                                <div style="font-size:12px;color:${popupText};background:${cardBg};border:1px solid ${borderCol};border-radius:6px;padding:6px 8px;display:flex;justify-content:space-between;gap:8px;">
+                                    <span><i class="fas fa-clock"></i> <b style="color:${popupBold}">Turno:</b> ${formatarTurno(props.turno_critico)}</span>
+                                    <span><i class="fas fa-calendar-day"></i> <b style="color:${popupBold}">Dia da semana:</b> ${props.dia_critico || 'Não informado'}</span>
+                                </div>
                             </div>
                         </div>
                     </div>
