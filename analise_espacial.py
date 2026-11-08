@@ -69,18 +69,26 @@ for cenario in cenarios:
             fatais = len(grupo[grupo['gravidade'] == 'fatal'])
             com_vitima = len(grupo[grupo['gravidade'] == 'com_vitima'])
             sem_vitima = len(grupo[grupo['gravidade'] == 'sem_vitima'])
+            nao_informado = len(grupo[~grupo['gravidade'].isin(['fatal', 'com_vitima', 'sem_vitima'])])
             
             # Análise de veículos
             veiculos = grupo['tipo_veiculo'].astype(str).str.upper()
             qtd_motos = veiculos.str.contains('MOTO').sum()
             qtd_carros = veiculos.str.contains('AUTOMOVEL').sum()
+            qtd_pesados = (veiculos.str.contains('CAMINHAO') | veiculos.str.contains('ONIBUS')).sum()
+            qtd_bicicletas = veiculos.str.contains('BICICLETA').sum()
             
             pct_motos = round((qtd_motos / qtd_acidentes) * 100, 1) if qtd_acidentes > 0 else 0
             pct_carros = round((qtd_carros / qtd_acidentes) * 100, 1) if qtd_acidentes > 0 else 0
+            pct_pesados = round((qtd_pesados / qtd_acidentes) * 100, 1) if qtd_acidentes > 0 else 0
+            pct_bicicletas = round((qtd_bicicletas / qtd_acidentes) * 100, 1) if qtd_acidentes > 0 else 0
             
             # Turno e dia de maior incidência
             turno_comum = grupo['turno'].mode().iloc[0] if not grupo['turno'].empty else 'N/A'
             dia_comum = grupo['dia_semana'].mode().iloc[0] if not grupo['dia_semana'].empty else 'N/A'
+            
+            # Custo social estimado pelo IPEA (2020)
+            custo_social = int(grupo['custo_social'].sum()) if 'custo_social' in grupo.columns else 0
                 
             poligonos.append({
                 'cluster_id': int(cluster_id),
@@ -89,8 +97,12 @@ for cenario in cenarios:
                 'fatais': fatais,
                 'com_vitima': com_vitima,
                 'sem_vitima': sem_vitima,
+                'nao_informado': nao_informado,
+                'custo_social': custo_social,
                 'pct_motos': pct_motos,
                 'pct_carros': pct_carros,
+                'pct_pesados': pct_pesados,
+                'pct_bicicletas': pct_bicicletas,
                 'turno_critico': turno_comum,
                 'dia_critico': dia_comum,
                 'geometry': poligono

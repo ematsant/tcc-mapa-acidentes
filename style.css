@@ -748,6 +748,29 @@ body.page-metodologia {
         border-top: 1px solid var(--border);
         border-radius: 0;
         overflow-y: auto;
+        transition: max-height var(--transition), opacity var(--transition);
+    }
+
+    .painel-filtros.collapsed {
+        margin-left: 0;
+        max-height: 0;
+        padding-top: 0;
+        padding-bottom: 0;
+        overflow: hidden;
+        visibility: hidden;
+        border-top: none;
+    }
+
+    .btn-hamburger {
+        top: 12px;
+        left: 12px;
+        width: 42px;
+        height: 42px;
+        font-size: 1.1rem;
+    }
+
+    .painel-filtros.collapsed + .btn-hamburger {
+        left: 12px;
     }
 
     #mapa {

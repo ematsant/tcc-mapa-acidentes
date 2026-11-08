@@ -177,6 +177,15 @@ function popularFiltrosDinamicos() {
 
 document.getElementById('btn-aplicar-filtros').addEventListener('click', aplicarFiltros);
 
+// Ouvintes de alteração dinâmica em tempo real nos filtros
+[
+    'ano-inicial', 'ano-final', 'gravidade-filtro', 'turno-filtro',
+    'dia-semana-filtro', 'tipo-sinistro-filtro', 'tipo-veiculo-filtro'
+].forEach(id => {
+    const el = document.getElementById(id);
+    if (el) el.addEventListener('change', aplicarFiltros);
+});
+
 document.getElementById('toggle-heatmap').addEventListener('change', e => {
     usandoMapaDeCalor = e.target.checked;
     aplicarFiltros();
@@ -268,17 +277,20 @@ function atualizarMapa(dados) {
     const pontosHeat = [];
     const isDark = document.documentElement.getAttribute('data-theme') === 'dark';
 
+    const formatterMoeda = new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL', maximumFractionDigits: 0 });
+
     dados.forEach(d => {
         if (usandoMapaDeCalor) {
             const peso = d.gravidade === 'fatal' ? 1.0 : (d.gravidade === 'com_vitima' ? 0.65 : 0.35);
             pontosHeat.push([d.latitude, d.longitude, peso]);
-        } else if (mostrandoMarcadores) {
+        }
+        if (mostrandoMarcadores) {
             const marcador = L.marker([d.latitude, d.longitude], { icon: criarIcone(d.gravidade) });
             const rotulo = {
-                fatal:      '<i class="ph-fill ph-warning-circle"></i> Fatal',
-                com_vitima: '<i class="ph-fill ph-warning"></i> Com Vítima',
-                sem_vitima: '<i class="ph-fill ph-check-circle"></i> Sem Vítima'
-            }[d.gravidade] || d.gravidade;
+                fatal:      '<i class="fas fa-skull-crossbones"></i> Fatal',
+                com_vitima: '<i class="fas fa-ambulance"></i> Com Vítima',
+                sem_vitima: '<i class="fas fa-car-crash"></i> Sem Vítima'
+            }[d.gravidade] || '<i class="fas fa-question-circle"></i> Não Informada';
 
             // Popup com cores EXPLÍCITAS – nunca usa var(--text)
             // Fundo do popup: branco no claro, cinza escuro no escuro
@@ -286,27 +298,34 @@ function atualizarMapa(dados) {
             const popupText   = isDark ? '#e0e0e0' : '#333333';
             const popupBold   = isDark ? '#ffffff' : '#1a1a2e';
             const headerBg    = 'linear-gradient(135deg,#3498db,#2176ae)';
+            const borderCol   = isDark ? '#2b2e44' : '#e6e8ec';
+            const custoSocial = d.custo_social ? formatterMoeda.format(d.custo_social) : 'Não informado';
 
-            // Badge de gravidade
+            // Badge de gravidade (vermelho: fatal, laranja: com vítima, verde: sem vítima, azul: não informada)
             const badgeBg    = d.gravidade === 'fatal' ? (isDark ? '#5c1a1a' : '#fdecea')
                              : d.gravidade === 'com_vitima' ? (isDark ? '#5c4a10' : '#fef9e7')
-                             : (isDark ? '#133d24' : '#eafaf1');
+                             : d.gravidade === 'sem_vitima' ? (isDark ? '#133d24' : '#eafaf1')
+                             : (isDark ? '#1a2e4c' : '#ebf5fb');
             const badgeColor = d.gravidade === 'fatal' ? (isDark ? '#f5a8a1' : '#c0392b')
                              : d.gravidade === 'com_vitima' ? (isDark ? '#f5d98a' : '#b7770d')
-                             : (isDark ? '#82e6b0' : '#1e8449');
+                             : d.gravidade === 'sem_vitima' ? (isDark ? '#82e6b0' : '#1e8449')
+                             : (isDark ? '#90caf9' : '#2980b9');
 
             marcador.bindPopup(`
-                <div style="font-family:'Inter',sans-serif;font-size:13px;min-width:240px;background:${popupBg};color:${popupText};border-radius:12px;overflow:hidden;">
-                    <div style="background:${headerBg};color:#fff;padding:10px 16px;font-weight:700;font-size:14px;">
-                        Detalhes do Acidente
+                <div style="font-family:'Inter',sans-serif;font-size:13px;min-width:250px;background:${popupBg};color:${popupText};border-radius:12px;overflow:hidden;box-shadow:0 8px 24px rgba(0,0,0,0.18);">
+                    <div style="background:${headerBg};color:#fff;padding:10px 34px 10px 16px;font-weight:700;font-size:14px;">
+                        <i class="fas fa-file-alt"></i> Detalhes do Acidente
                     </div>
-                    <div style="padding:14px 16px;display:flex;flex-direction:column;gap:8px;">
+                    <div style="padding:12px 16px;display:flex;flex-direction:column;gap:8px;">
                         <div><b style="color:${popupBold}"><i class="fas fa-calendar"></i> Data:</b> ${d.data || 'Não informado'}</div>
                         <div><b style="color:${popupBold}"><i class="fas fa-clock"></i> Turno:</b> ${d.turno || 'Não informado'}</div>
                         <div><b style="color:${popupBold}"><i class="fas fa-calendar-day"></i> Dia:</b> ${d.dia_semana || 'Não informado'}</div>
                         <div><b style="color:${popupBold}"><i class="fas fa-car"></i> Veículos:</b> ${d.tipo_veiculo || 'Não informado'}</div>
                         <div><b style="color:${popupBold}"><i class="fas fa-exclamation-circle"></i> Tipo:</b> ${d.tipo_sinistro || 'Não informado'}</div>
-                        <div style="margin-top:4px;padding:4px 8px;border-radius:6px;background:${badgeBg};font-weight:700;color:${badgeColor};">
+                        <div style="border-top:1px dashed ${borderCol};padding-top:6px;">
+                            <b style="color:${popupBold}"><i class="fas fa-coins"></i> Custo Social (IPEA):</b> <span style="color:#e74c3c;font-weight:700;">${custoSocial}</span>
+                        </div>
+                        <div style="margin-top:2px;padding:5px 8px;border-radius:6px;background:${badgeBg};font-weight:700;color:${badgeColor};text-align:center;">
                             ${rotulo}
                         </div>
                     </div>
@@ -317,10 +336,11 @@ function atualizarMapa(dados) {
         }
     });
 
-    if (usandoMapaDeCalor) {
+    if (usandoMapaDeCalor && pontosHeat.length > 0) {
         heatLayer = L.heatLayer(pontosHeat, { radius: 25, blur: 15, maxZoom: 15 });
         heatLayer.addTo(mapa);
-    } else if (mostrandoMarcadores) {
+    }
+    if (mostrandoMarcadores) {
         clusterLayer.addTo(mapa);
     }
     
@@ -339,15 +359,85 @@ function atualizarMapa(dados) {
             },
             onEachFeature: function(feature, layer) {
                 const props = feature.properties;
-                layer.bindPopup(`
-                    <div style="font-family: 'Inter', sans-serif; font-size: 13px; text-align: center;">
-                        <b style="color: #c0392b; font-size: 14px;">Área de Risco Delimitada</b><br>
-                        <span style="font-size: 11px; color: var(--text-secondary);">(DBSCAN - Período: ${props.periodo})</span><hr style="margin: 6px 0;">
-                        <b>Total de Acidentes:</b> ${props.qtd_acidentes}<br>
-                        <b style="color: #e74c3c">Fatais:</b> ${props.fatais}<br>
-                        <b style="color: #f39c12">Com Vítima:</b> ${props.com_vitima}
+                const custoFormatado = props.custo_social ? formatterMoeda.format(props.custo_social) : 'Sob consulta';
+                const naoInf = props.nao_informado !== undefined ? props.nao_informado : (props.qtd_acidentes - props.fatais - props.com_vitima - (props.sem_vitima || 0));
+                
+                const popupBg   = isDark ? '#1e2030' : '#ffffff';
+                const popupText = isDark ? '#e0e0e0' : '#333333';
+                const popupBold = isDark ? '#ffffff' : '#1a1a2e';
+                const headerBg  = 'linear-gradient(135deg, #c0392b, #962d22)';
+                const cardBg    = isDark ? '#151724' : '#f8f9fa';
+                const borderCol = isDark ? '#2b2e44' : '#e6e8ec';
+
+                const htmlPopup = `
+                    <div style="font-family:'Inter',sans-serif;font-size:13px;min-width:270px;background:${popupBg};color:${popupText};border-radius:12px;overflow:hidden;box-shadow:0 8px 24px rgba(0,0,0,0.18);">
+                        <div style="background:${headerBg};color:#fff;padding:10px 34px 10px 16px;font-weight:700;font-size:14px;display:flex;align-items:center;">
+                            <span><i class="fas fa-shield-alt"></i> Agrupamento #${props.cluster_id}</span>
+                            <span style="font-size:10px;font-weight:600;background:rgba(255,255,255,0.22);padding:2px 6px;border-radius:4px;margin-left:8px;">DBSCAN</span>
+                        </div>
+                        <div style="padding:12px 16px;display:flex;flex-direction:column;gap:8px;">
+                            <!-- Custo Social IPEA -->
+                            <div style="background:${cardBg};border:1px solid ${borderCol};border-radius:8px;padding:8px 10px;text-align:center;">
+                                <div style="font-size:10px;color:${isDark ? '#9da3b4' : '#6c757d'};font-weight:700;text-transform:uppercase;letter-spacing:0.5px;">Custo Social Estimado (IPEA)</div>
+                                <div style="font-size:16px;font-weight:800;color:#e74c3c;margin-top:2px;">${custoFormatado}</div>
+                            </div>
+
+                            <!-- Histórico de Severidade -->
+                            <div>
+                                <div style="font-size:10px;font-weight:700;color:${isDark ? '#9da3b4' : '#6c757d'};text-transform:uppercase;margin-bottom:3px;letter-spacing:0.5px;">Sinistros no Período (${props.periodo})</div>
+                                <div style="display:flex;justify-content:space-between;background:${cardBg};border:1px solid ${borderCol};border-radius:6px;padding:6px 8px;font-size:11px;">
+                                    <span><b>Total:</b> ${props.qtd_acidentes}</span>
+                                    <span style="color:#e74c3c;"><b>Fatais:</b> ${props.fatais}</span>
+                                    <span style="color:#f39c12;"><b>Com Vítima:</b> ${props.com_vitima}</span>
+                                    <span style="color:#2ecc71;"><b>Sem Vítima:</b> ${props.sem_vitima ?? 0}</span>
+                                    ${naoInf > 0 ? `<span style="color:#3498db;"><b>Não Inf.:</b> ${naoInf}</span>` : ''}
+                                </div>
+                            </div>
+
+                            <!-- Perfil de Modais -->
+                            <div>
+                                <div style="font-size:10px;font-weight:700;color:${isDark ? '#9da3b4' : '#6c757d'};text-transform:uppercase;margin-bottom:3px;letter-spacing:0.5px;">Perfil dos Veículos Envolvidos</div>
+                                <div style="display:flex;gap:6px;flex-wrap:wrap;">
+                                    <div style="flex:1;min-width:60px;background:${cardBg};border:1px solid ${borderCol};border-radius:6px;padding:5px 4px;text-align:center;">
+                                        <div style="font-size:11px;color:${isDark ? '#f5d98a' : '#b7770d'};font-weight:600;"><i class="fas fa-motorcycle"></i> Motos</div>
+                                        <div style="font-size:13px;font-weight:800;color:${popupBold};">${props.pct_motos ?? 0}%</div>
+                                    </div>
+                                    <div style="flex:1;min-width:60px;background:${cardBg};border:1px solid ${borderCol};border-radius:6px;padding:5px 4px;text-align:center;">
+                                        <div style="font-size:11px;color:${isDark ? '#90caf9' : '#1976d2'};font-weight:600;"><i class="fas fa-car"></i> Carros</div>
+                                        <div style="font-size:13px;font-weight:800;color:${popupBold};">${props.pct_carros ?? 0}%</div>
+                                    </div>
+                                    ${(props.pct_pesados > 0) ? `
+                                    <div style="flex:1;min-width:60px;background:${cardBg};border:1px solid ${borderCol};border-radius:6px;padding:5px 4px;text-align:center;">
+                                        <div style="font-size:11px;color:${isDark ? '#a5d6a7' : '#388e3c'};font-weight:600;"><i class="fas fa-truck"></i> Pesados</div>
+                                        <div style="font-size:13px;font-weight:800;color:${popupBold};">${props.pct_pesados}%</div>
+                                    </div>` : ''}
+                                    ${(props.pct_bicicletas > 0) ? `
+                                    <div style="flex:1;min-width:60px;background:${cardBg};border:1px solid ${borderCol};border-radius:6px;padding:5px 4px;text-align:center;">
+                                        <div style="font-size:11px;color:${isDark ? '#ce93d8' : '#7b1fa2'};font-weight:600;"><i class="fas fa-bicycle"></i> Bicicletas</div>
+                                        <div style="font-size:13px;font-weight:800;color:${popupBold};">${props.pct_bicicletas}%</div>
+                                    </div>` : ''}
+                                </div>
+                            </div>
+
+                            <!-- Padrão Temporal Crítico -->
+                            <div style="font-size:11px;color:${popupText};background:${cardBg};border:1px solid ${borderCol};border-radius:6px;padding:6px 8px;display:flex;justify-content:space-between;">
+                                <span><b style="color:${popupBold}"><i class="fas fa-clock"></i> Turno:</b> ${props.turno_critico || 'N/A'}</span>
+                                <span><b style="color:${popupBold}"><i class="fas fa-calendar-day"></i> Dia:</b> ${props.dia_critico || 'N/A'}</span>
+                            </div>
+                        </div>
                     </div>
-                `);
+                `;
+
+                layer.bindPopup(htmlPopup, { minWidth: 280, className: 'custom-popup-infosiga' });
+
+                layer.on({
+                    mouseover: function(e) {
+                        e.target.setStyle({ weight: 4, fillOpacity: 0.5, dashArray: '' });
+                    },
+                    mouseout: function(e) {
+                        hotspotsLayer.resetStyle(e.target);
+                    }
+                });
             }
         });
         hotspotsLayer.addTo(mapa);
@@ -361,8 +451,14 @@ function atualizarMapa(dados) {
 
 // ── Gráfico de Estatísticas (Chart.js) ───────────────────
 function renderizarGrafico(dados) {
-    const contagem = { fatal: 0, com_vitima: 0, sem_vitima: 0 };
-    dados.forEach(d => { if (contagem[d.gravidade] !== undefined) contagem[d.gravidade]++; });
+    const contagem = { fatal: 0, com_vitima: 0, sem_vitima: 0, 'NÃO INFORMADO': 0 };
+    dados.forEach(d => {
+        if (contagem[d.gravidade] !== undefined) {
+            contagem[d.gravidade]++;
+        } else {
+            contagem['NÃO INFORMADO']++;
+        }
+    });
 
     const isDark = document.documentElement.getAttribute('data-theme') === 'dark';
     const textColor = isDark ? '#e8eaf6' : '#1a1a2e';
@@ -373,10 +469,10 @@ function renderizarGrafico(dados) {
     graficoChart = new Chart(ctx, {
         type: 'doughnut',
         data: {
-            labels: ['Fatal', 'Com Vítima', 'Sem Vítima'],
+            labels: ['Fatal', 'Com Vítima', 'Sem Vítima', 'Não Informada'],
             datasets: [{
-                data: [contagem.fatal, contagem.com_vitima, contagem.sem_vitima],
-                backgroundColor: ['#e74c3c', '#f39c12', '#2ecc71'],
+                data: [contagem.fatal, contagem.com_vitima, contagem.sem_vitima, contagem['NÃO INFORMADO']],
+                backgroundColor: ['#e74c3c', '#f39c12', '#2ecc71', '#3498db'],
                 borderColor: isDark ? '#161823' : '#fff',
                 borderWidth: 2,
                 hoverOffset: 6
@@ -478,8 +574,7 @@ document.getElementById('btn-exportar-csv').addEventListener('click', () => {
     ];
 
     // Cabeçalho do CSV
-    let csvContent = "data:text/csv;charset=utf-8,\uFEFF" 
-        + colunas.join(";") + "\n"; // usando ponto e vírgula por causa do Excel pt-BR
+    let csvContent = colunas.join(";") + "\r\n"; // usando ponto e vírgula por causa do Excel pt-BR
 
     // Linhas de dados
     dados.forEach(row => {
@@ -489,17 +584,19 @@ document.getElementById('btn-exportar-csv').addEventListener('click', () => {
             val = val.replace(/"/g, '""');
             return `"${val}"`;
         });
-        csvContent += values.join(";") + "\n";
+        csvContent += values.join(";") + "\r\n";
     });
 
-    // Criar download link
-    const encodedUri = encodeURI(csvContent);
+    // Criar download via Blob seguro (sem restrição de tamanho de URI, com BOM UTF-8)
+    const blob = new Blob(["\uFEFF" + csvContent], { type: 'text/csv;charset=utf-8;' });
+    const url = URL.createObjectURL(blob);
     const link = document.createElement("a");
-    link.setAttribute("href", encodedUri);
+    link.setAttribute("href", url);
     link.setAttribute("download", "acidentes_franca_filtrado.csv");
     document.body.appendChild(link); // Requerido no Firefox
     link.click();
     document.body.removeChild(link);
+    setTimeout(() => URL.revokeObjectURL(url), 1000);
 });
 
 
