@@ -206,9 +206,10 @@ Acesse no navegador:
 ## 👤 Autor e Informações Acadêmicas
 
 * **Autor:** Matheus Moraes ([@ematsant](https://github.com/ematsant))
+* **Orientador:** Prof. Euller da Silva Ferreira
 * **Curso:** Bacharelado em Ciência da Computação
 * **Instituição:** Universidade de Franca (UNIFRAN)
-* **Orientação:** Trabalho de Conclusão de Curso (TCC)
+* **Trabalho:** Trabalho de Conclusão de Curso (TCC)
 * **Ano:** 2026
 
 ---
