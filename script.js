@@ -56,11 +56,11 @@ let dadosOriginais    = [];
 let clusterLayer      = L.markerClusterGroup();
 let heatLayer         = null;
 let usandoMapaDeCalor = false;
-let mostrandoMarcadores = true;
+let mostrandoMarcadores = false;
 let graficoChart      = null;
 
 let hotspotsLayer     = null;
-let mostrandoHotspots = false;
+let mostrandoHotspots = true;
 let geojsonHotspotsData = null;
 
 // Carregar Zonas de Risco geradas pelo DBSCAN
@@ -71,6 +71,9 @@ fetch('hotspots.geojson')
         const countSpan = document.getElementById('hotspots-count');
         if (countSpan && data.features) {
             countSpan.textContent = `(${data.features.length})`;
+        }
+        if (mostrandoHotspots && !hotspotsLayer && dadosOriginais.length > 0) {
+            aplicarFiltros();
         }
     })
     .catch(err => console.warn('Zonas de risco não carregadas. Execute analise_espacial.py primeiro.'));
@@ -558,13 +561,13 @@ document.getElementById('btn-limpar-filtros').addEventListener('click', () => {
     document.getElementById('dia-semana-filtro').value = 'todos';
     document.getElementById('tipo-sinistro-filtro').value = 'todos';
     document.getElementById('tipo-veiculo-filtro').value = 'todos';
-    document.getElementById('toggle-marcadores').checked = true;
+    document.getElementById('toggle-marcadores').checked = false;
     document.getElementById('toggle-heatmap').checked = false;
-    document.getElementById('toggle-hotspots').checked = false;
+    document.getElementById('toggle-hotspots').checked = true;
     
-    mostrandoMarcadores = true;
+    mostrandoMarcadores = false;
     usandoMapaDeCalor = false;
-    mostrandoHotspots = false;
+    mostrandoHotspots = true;
     
     mapa.setView(FRANCA_COORDS, ZOOM_INICIAL);
     aplicarFiltros();
