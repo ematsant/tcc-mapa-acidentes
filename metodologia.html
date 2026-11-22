@@ -78,7 +78,7 @@
                 <div class="kpi-valor">65,94x</div>
                 <div class="kpi-rotulo">Comparação com K-Means</div>
                 <div class="kpi-desc">
-                    Para cobrir os mesmos acidentes, o modelo K-Means delimitou 62,79 km² (10,37% do município), uma área 66 vezes maior que a do DBSCAN.
+                    Com os mesmos 107 grupos (K = 107), o K-Means não filtra ruídos e espalha os polígonos por 62,79 km² (10,37% do município), área 65,94 vezes maior que a do DBSCAN.
                 </div>
             </div>
 
@@ -118,10 +118,10 @@
                             <td><span class="tag-destaque dbscan">Concentração de pontos por densidade</span></td>
                         </tr>
                         <tr>
-                            <td><strong>Sinistros Graves Concentrados</strong></td>
+                            <td><strong>Sinistros Graves Abrangidos (K = 107)</strong></td>
                             <td>~40% a 50% dos registros</td>
-                            <td>31,56% (1.817 de 5.757 ocorrências pareadas)</td>
-                            <td><span class="tag-destaque dbscan">31,56% (1.817 de 5.757 ocorrências)</span></td>
+                            <td>100% (5.757 ocorrências, sem filtrar ruído)</td>
+                            <td><span class="tag-destaque dbscan">31,56% (1.817 de 5.757 nos núcleos densos)</span></td>
                         </tr>
                         <tr>
                             <td><strong>Área Ocupada em Franca</strong></td>
@@ -257,18 +257,20 @@
                         3. COMPARAÇÃO COM O K-MEANS (Grupo de Controle Comparativo):<br>
                         --------------------------------------------------------------------------------<br>
                         &nbsp;&nbsp;• Quantidade de grupos pareada: K = 107 regiões equivalentes<br>
+                        &nbsp;&nbsp;• Cobertura do K-Means: 100% das ocorrências graves (5.757 registros, sem filtragem de ruído)<br>
                         &nbsp;&nbsp;• Área delimitada pelo K-Means: 62,79 km² (10,37% do território municipal)<br>
-                        &nbsp;&nbsp;• Razão de área: A área delimitada pelo K-Means foi 65,94 vezes maior<br>
-                        &nbsp;&nbsp;&nbsp;&nbsp;que a área delimitada pelo DBSCAN para cobrir a mesma proporção de sinistros.<br>
-                        &nbsp;&nbsp;• Diferença metodológica: O K-Means divide o espaço em polígonos convexos<br>
-                        &nbsp;&nbsp;&nbsp;&nbsp;amplos que abrangem vazios urbanos; o DBSCAN contorna os pontos densos<br>
+                        &nbsp;&nbsp;• Razão de área: A área delimitada pelos 107 grupos do K-Means foi 65,94 vezes maior<br>
+                        &nbsp;&nbsp;&nbsp;&nbsp;que a área das 107 zonas críticas do DBSCAN.<br>
+                        &nbsp;&nbsp;• Diferença metodológica: O K-Means força a inclusão de 100% dos pontos em polígonos<br>
+                        &nbsp;&nbsp;&nbsp;&nbsp;convexos amplos que abrangem vazios urbanos; o DBSCAN contorna apenas os núcleos densos<br>
                         &nbsp;&nbsp;&nbsp;&nbsp;ao longo das vias e classifica as ocorrências isoladas como ruído.<br><br>
                         --------------------------------------------------------------------------------<br>
                         4. SÍNTESE COMPARATIVA E APLICAÇÃO:<br>
                         --------------------------------------------------------------------------------<br>
                         &nbsp;&nbsp;• O modelo baseado em densidade (DBSCAN) delimitou 0,95 km² para concentrar<br>
-                        &nbsp;&nbsp;&nbsp;&nbsp;31,56% dos acidentes com vítimas (feridos e óbitos), enquanto o modelo<br>
-                        &nbsp;&nbsp;&nbsp;&nbsp;particional (K-Means) demandou 62,79 km² para cobrir o mesmo volume.<br>
+                        &nbsp;&nbsp;&nbsp;&nbsp;31,56% dos acidentes com vítimas (feridos e óbitos) nas 107 zonas mais densas,<br>
+                        &nbsp;&nbsp;&nbsp;&nbsp;enquanto o modelo particional (K-Means, K = 107) espalhou seus grupos por 62,79 km²<br>
+                        &nbsp;&nbsp;&nbsp;&nbsp;por não descartar ocorrências periféricas e isoladas.<br>
                         &nbsp;&nbsp;• Sob a perspectiva de aplicação prática, esses resultados indicam que o<br>
                         &nbsp;&nbsp;&nbsp;&nbsp;poder público pode atuar em 0,95 km² da malha viária para abranger<br>
                         &nbsp;&nbsp;&nbsp;&nbsp;quase um terço de todas as ocorrências com feridos e óbitos em Franca.<br>
